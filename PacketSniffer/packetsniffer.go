@@ -1,3 +1,0 @@
-package packetsniffer
-
-func sniff(){}
