@@ -1,0 +1,21 @@
+{
+  "type": "IPv4",
+  "source": "192.168.0.135",
+  "destination": "8.8.8.8",
+  "protocol": "ICMPv4",
+  "flags": null,
+  "frag_offset": 0,
+  "ihl": 5,
+  "length": 84,
+  "options": null,
+  "padding": null,
+  "base_layer": {
+    "Contents": "RQAAVLAlAABAAQAAwKgAhwgICAg=",
+    "Payload": "CABG/TCxAATN3Z5nAAAAAE01CAAAAAAAEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nw=="
+  },
+  "checksum": 0,
+  "ttl": 64,
+  "version": 4,
+  "tos": 0,
+  "payload": "..Fý0±..ÍÝ.g....M5...................... !\"#$%\u0026'()*+,-./01234567"
+}

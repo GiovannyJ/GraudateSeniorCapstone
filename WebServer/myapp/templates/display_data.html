@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IPv4 Data</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        pre { white-space: pre-wrap; word-wrap: break-word; } /* For formatting payload */
+    </style>
+    <!-- Include jQuery for AJAX -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Function to fetch data via AJAX
+        function fetchData() {
+            $.ajax({
+                url: window.location.href, // Use the current URL
+                type: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest' // Indicate this is an AJAX request
+                },
+                success: function(response) {
+                    if (response.data) {
+                        let tableBody = $('#data-table tbody');
+                        tableBody.empty(); // Clear existing rows
+
+                        // Loop through the data and add rows to the table
+                        response.data.forEach(function(item) {
+                            tableBody.append(
+                                `<tr>
+                                    <td>${item.type}</td>
+                                    <td>${item.source}</td>
+                                    <td>${item.destination}</td>
+                                    <td>${item.protocol}</td>
+                                    <td>${item.flags || 'None'}</td>
+                                    <td>${item.frag_offset}</td>
+                                    <td>${item.ihl}</td>
+                                    <td>${item.length}</td>
+                                    <td>${item.checksum}</td>
+                                    <td>${item.ttl}</td>
+                                    <td>${item.version}</td>
+                                    <td>${item.tos}</td>
+                                    <td><pre>${item.payload}</pre></td>
+                                    <td><pre>${item.base_layer?.Contents || ''}</pre></td>
+                                    <td><pre>${item.base_layer?.Payload || ''}</pre></td>
+                                </tr>`
+                            );
+                        });
+                    } else {
+                        // If no data is available, display a message
+                        $('#data-table tbody').html('<tr><td colspan="15">No data available.</td></tr>');
+                    }
+                },
+                complete: function() {
+                    // Poll every 2 seconds (adjust as needed)
+                    setTimeout(fetchData, 1000);
+                }
+            });
+        }
+
+        // Start fetching data when the page loads
+        $(document).ready(function() {
+            fetchData();
+        });
+    </script>
+</head>
+<body>
+    <h1>IPv4 Data</h1>
+    <a href="/">Home</a> <!-- Link to the homepage -->
+
+    <table id="data-table">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>Protocol</th>
+                <th>Flags</th>
+                <th>Frag Offset</th>
+                <th>IHL</th>
+                <th>Length</th>
+                <th>Checksum</th>
+                <th>TTL</th>
+                <th>Version</th>
+                <th>TOS</th>
+                <th>Payload</th>
+                <th>Base Layer Contents</th>
+                <th>Base Layer Payload</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows will be dynamically populated by JavaScript -->
+            <tr>
+                <td colspan="15">Loading data...</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

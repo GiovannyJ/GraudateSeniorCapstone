@@ -1,14 +1,21 @@
 package packet
 
 import (
+	"fmt"
 	"log"
 	"net"
-	"fmt"
+	"os/exec"
+	"strings"
+	"regexp"
+	"bytes"
+	"runtime"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
-	
+
+	a "PacketSniffer/API"
+	f "PacketSniffer/file"
 	h "PacketSniffer/helper"
 	s "PacketSniffer/structs"
 )
@@ -23,40 +30,118 @@ var (
 
 
 func getDefaultInterface() *s.TargetDevice {
-	devices, err := pcap.FindAllDevs()
-	if err != nil {
-		log.Fatal("Error finding network devices:", err)
+	// Get the default gateway
+	var gateway net.IP
+	var err error
+	
+	os := runtime.GOOS
+
+	switch os {
+	case "windows":
+		gateway, err = getDefaultGatewayWindows()
+	case "linux":
+		gateway, err = getDefaultGatewayLinux()
+	default:
+		fmt.Printf("Running on an unsupported OS: %s\n", os)
 	}
 
-	log.Println("Available Interfaces:")
-	for _, device := range devices {
-		log.Printf("Name: %s, Addresses: %v\n", device.Name, device.Addresses)
-		for _, address := range device.Addresses{
-			mask := net.IP(address.Netmask).String()
-			log.Printf("Checking device: %s, IP: %s, Mask: %s\n", device.Name, address.IP.String(), mask)
+	if err != nil {
+		h.Warn("Error getting default gateway: " + err.Error())
+		return nil
+	}
 
-			// Match subnet mask 255.255.255.0
-			if mask == "255.255.255.0" {
-				log.Printf("Selected device: %s\n", device.Name)
+	// Get all network devices
+	devices, err := pcap.FindAllDevs()
+	if err != nil {
+		h.Warn("Error finding network devices: " + err.Error())
+		return nil
+	}
+
+	h.Okay("Available Interfaces:")
+	for _, device := range devices {
+		h.Info("Name: %s, Addresses: %v", device.Name, device.Addresses)
+		for _, address := range device.Addresses {
+			mask := net.IP(address.Netmask).String()
+			h.Info("Checking device: %s, IP: %s, Mask: %s\n", device.Name, address.IP.String(), mask)
+
+			// Check if the IP is in the same subnet as the default gateway
+			if isInSameSubnet(net.ParseIP(address.IP.String()), gateway, net.IP(address.Netmask)) {
+				h.Okay("Selected device: %s\n", device.Name)
 				return &s.TargetDevice{DeviceName: device.Name, DeviceIP: address.IP.String()}
 			}
 		}
 	}
 
-	log.Fatal("No network interfaces found")
+	h.Warn("No suitable network interfaces found")
 	return nil
+}
+
+
+// GetDefaultGateway extracts the default gateway from `route print 0.0.0.0`
+func getDefaultGatewayWindows() (net.IP, error) {
+	// Execute the Windows command to get the route info
+	cmd := exec.Command("cmd", "/C", "route print 0.0.0.0")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+
+	if err := cmd.Run(); err != nil {
+		return nil, fmt.Errorf("failed to execute command: %v", err)
+	}
+
+	// Convert output to string and split into lines
+	output := out.String()
+	lines := strings.Split(output, "\n")
+
+	// Define regex pattern to match the default gateway IP
+	re := regexp.MustCompile(`\s*0.0.0.0\s+0.0.0.0\s+(\d+\.\d+\.\d+\.\d+)`)
+
+	// Iterate through lines to find the match
+	for _, line := range lines {
+		match := re.FindStringSubmatch(line)
+		if len(match) > 1 {
+			return net.ParseIP(match[1]), nil // Convert string to net.IP
+		}
+	}
+
+	return nil, fmt.Errorf("default gateway not found")
+}
+
+
+// getDefaultGateway returns the IP address of the default gateway
+func getDefaultGatewayLinux() (net.IP, error) {
+	// Use system commands or a library to get the default gateway
+	// For simplicity, this example assumes a Linux system
+	out, err := exec.Command("ip", "route", "show", "default").Output()
+	if err != nil {
+		return nil, err
+	}
+
+	// Parse the output to extract the gateway IP
+	fields := strings.Fields(string(out))
+	if len(fields) < 3 {
+		return nil, fmt.Errorf("unexpected output from 'ip route'")
+	}
+
+	return net.ParseIP(fields[2]), nil
+}
+
+// isInSameSubnet checks if two IPs are in the same subnet
+func isInSameSubnet(ip1, ip2, mask net.IP) bool {
+	ip1Masked := ip1.Mask(net.IPMask(mask))
+	ip2Masked := ip2.Mask(net.IPMask(mask))
+	return ip1Masked.Equal(ip2Masked)
 }
 
 
 
 
-func ipv4PacketScan(packet gopacket.Packet, source_ip string, targetIP string) {
+func ipv4PacketScan(packet gopacket.Packet, source_ip string, targetIP string) *s.IPv4ScanResults{
 	ip4Layer := packet.Layer(layers.LayerTypeIPv4)
 	if ip4Layer != nil {
 		ip, _ := ip4Layer.(*layers.IPv4)
 
 		if !((ip.SrcIP.String() == source_ip && ip.DstIP.String() == targetIP) || (ip.SrcIP.String() == targetIP && ip.DstIP.String() == source_ip)) {
-			return // Skip packet if not between the two IPs
+			return nil// Skip packet if not between the two IPs
 		}
 
 		// Ensure ipPacket map is initialized before assigning values
@@ -82,16 +167,17 @@ func ipv4PacketScan(packet gopacket.Packet, source_ip string, targetIP string) {
 		// Print IPv4 details
 		results := s.NewIPv4ScanResults(ip, h.CleanPayload(ip.Payload))
 		
-		fmt.Println(results.ToJSON())
+		return &results
 	}
+	return nil
 }
 
 
 
 
-func Sniff(targetIP string) {
+func Sniff(targetIP string, mode string) {
 	device := getDefaultInterface()
-	log.Printf("Using network interface: %s\n", device)
+	h.Okay("Using network interface: %s\n", device)
 
 	handle, err := pcap.OpenLive(device.DeviceName, 1600, true, pcap.BlockForever)
 	if err != nil {
@@ -100,8 +186,19 @@ func Sniff(targetIP string) {
 	defer handle.Close()
 
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
+	h.Info("Starting packet scan")
 	for packet := range packetSource.Packets() {
-		fmt.Println("=================================PACKET==================================")
-		ipv4PacketScan(packet, device.DeviceIP, targetIP)
+		scanResult := ipv4PacketScan(packet, device.DeviceIP, targetIP)
+		if scanResult != nil{
+			if mode == "API" || mode == "api"{
+				a.SendToAPI(*scanResult)
+			}else if mode == "file" || mode == "File"{
+				f.SendToFile(*scanResult)
+				defer f.CloseFile()
+			}else{
+				fmt.Println(scanResult.ToJSON())
+			}
+			
+		}
 	}
 }

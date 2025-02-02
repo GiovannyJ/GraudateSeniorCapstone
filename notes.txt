@@ -1,3 +1,1 @@
 -find a way to make a fake server that sends malicous packets to device
--make an API in python to take in packet data
--make Log files for pcap

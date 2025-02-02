@@ -2,7 +2,7 @@ package helper
 
 import (
 	"unicode"
-
+	"fmt"
 )
 
 func isPrintable(b byte) bool {
@@ -20,3 +20,7 @@ func CleanPayload(payload []byte) string {
     }
     return result
 }
+
+func Okay(message string, args ...interface{}){fmt.Printf("[+] " + message+"\n", args...)}
+func Info(message string, args ...interface{}){fmt.Printf("[i] " + message+"\n", args...)}
+func Warn(message string, args ...interface{}){fmt.Printf("[!] " + message+"\n", args...)}
