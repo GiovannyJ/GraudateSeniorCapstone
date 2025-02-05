@@ -14,5 +14,5 @@ File/file = sends to file in /PCAP_Files directory
 empty string = prints to console
 */
 func main() {
-	p.Sniff(targetIP, "api")
+	p.Sniff(targetIP, "file")
 }
