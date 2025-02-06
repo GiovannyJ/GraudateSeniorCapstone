@@ -41,6 +41,8 @@ func getDefaultInterface() *s.TargetDevice {
 		gateway, err = getDefaultGatewayWindows()
 	case "linux":
 		gateway, err = getDefaultGatewayLinux()
+	case "darwin":
+		gateway, err = getDefaultGatewayMacOS()
 	default:
 		fmt.Printf("Running on an unsupported OS: %s\n", os)
 	}
@@ -123,6 +125,25 @@ func getDefaultGatewayLinux() (net.IP, error) {
 	}
 
 	return net.ParseIP(fields[2]), nil
+}
+
+func getDefaultGatewayMacOS() (net.IP, error) {
+	out, err := exec.Command("netstat", "-rn").Output()
+	if err != nil {
+		return nil, err
+	}
+
+	lines := strings.Split(string(out), "\n")
+	re := regexp.MustCompile(`default\s+(\d+\.\d+\.\d+\.\d+)`)
+
+	for _, line := range lines {
+		match := re.FindStringSubmatch(line)
+		if len(match) > 1 {
+			return net.ParseIP(match[1]), nil
+		}
+	}
+
+	return nil, fmt.Errorf("default gateway not found")
 }
 
 // isInSameSubnet checks if two IPs are in the same subnet
