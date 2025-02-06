@@ -4,6 +4,7 @@ import (
 	"github.com/google/gopacket/layers"
 	"fmt"
 	"encoding/json"
+	"time"
 )
 
 type TargetDevice struct {
@@ -30,6 +31,7 @@ type IPv4ScanResults struct {
 	Version     uint8             `json:"version"`
 	TOS         uint8             `json:"tos"`
 	Payload     string            `json:"payload"`
+	TimeStamp	time.Time		  `json:"timestamp"`
 }
 
 func NewIPv4ScanResults(ip *layers.IPv4, payload string) IPv4ScanResults {
@@ -50,6 +52,7 @@ func NewIPv4ScanResults(ip *layers.IPv4, payload string) IPv4ScanResults {
 		Version:     ip.Version,
 		TOS:         ip.TOS,
 		Payload:     payload,
+		TimeStamp: time.Now(),
 	}
 }
 

@@ -44,6 +44,7 @@
                                     <td><pre>${item.payload}</pre></td>
                                     <td><pre>${item.base_layer?.Contents || ''}</pre></td>
                                     <td><pre>${item.base_layer?.Payload || ''}</pre></td>
+                                    <td><pre>${item.timestamp}</pre></td>
                                 </tr>`
                             );
                         });
@@ -87,6 +88,7 @@
                 <th>Payload</th>
                 <th>Base Layer Contents</th>
                 <th>Base Layer Payload</th>
+                <th>Time Stamp</th>
             </tr>
         </thead>
         <tbody>
