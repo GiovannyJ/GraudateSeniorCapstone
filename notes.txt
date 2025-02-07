@@ -1,1 +1,21 @@
 -find a way to make a fake server that sends malicous packets to device
+
+AI STUFF:
+-supervised: kaggle dataset
+
+-unsuperived 
+    - dummy data we create -> 
+        - flood attack (DOS)
+        - malicious packet payload
+
+- unsuperived live data 
+    - go into model -> test and approve after 
+
+-model selection 
+    - random forest (baseline)
+    - RESEARCH OTHER ONES 
+
+- check for model accuracy & eval metrics (ways to know this is correct)
+
+- risk score based on probability score -
+    -> require research on what makes packet bad boy (metric of the packet) what probability rule to use
