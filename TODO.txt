@@ -1,0 +1,33 @@
+MalPacket
+-create script that simulates malicious traffic
+struct: malpacket{ip info, mal_packet_flag}
+
+PacketSniffer
+Allow for TCP Traffic to be scanned
+packetsniff.go: 
+    - func ipv4PacketScan(packet gopacket.Packet, source_ip string, targetIP string) *s.TCPScanResults
+structs
+    - struct TCPScanResults
+    - func NewTCPScanResults
+    - func ToJSON()
+    - func PrintScanResults()
+
+AI STUFF:
+-supervised: kaggle dataset
+
+-unsuperived 
+    - dummy data we create -> 
+        - flood attack (DOS)
+        - malicious packet payload
+
+- unsuperived live data 
+    - go into model -> test and approve after 
+
+-model selection 
+    - random forest (baseline)
+    - RESEARCH OTHER ONES 
+
+- check for model accuracy & eval metrics (ways to know this is correct)
+
+- risk score based on probability score -
+    -> require research on what makes packet bad boy (metric of the packet) what probability rule to use
