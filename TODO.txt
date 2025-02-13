@@ -2,6 +2,12 @@ MalPacket
 -create script that simulates malicious traffic
 struct: malpacket{ip info, mal_packet_flag}
 
+ISSUE:
+packets are encrypted with TLS so its hard to read payloads -> read headers and time stamps instead
+encryption w TLS comes from a key shared from host and client
+packets that arent encrypted we can get signatures from
+
+
 PacketSniffer
 Allow for TCP Traffic to be scanned
 -fix TCP packet scan
