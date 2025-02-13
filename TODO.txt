@@ -4,13 +4,7 @@ struct: malpacket{ip info, mal_packet_flag}
 
 PacketSniffer
 Allow for TCP Traffic to be scanned
-packetsniff.go: 
-    - func ipv4PacketScan(packet gopacket.Packet, source_ip string, targetIP string) *s.TCPScanResults
-structs
-    - struct TCPScanResults
-    - func NewTCPScanResults
-    - func ToJSON()
-    - func PrintScanResults()
+-fix TCP packet scan
 
 AI STUFF:
 -supervised: kaggle dataset

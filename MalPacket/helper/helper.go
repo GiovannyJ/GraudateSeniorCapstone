@@ -1,35 +1,28 @@
-package packet
+package helper
 
 import (
+	"bytes"
 	"fmt"
-	"log"
 	"net"
 	"os/exec"
-	"strings"
 	"regexp"
-	"bytes"
 	"runtime"
+	"strings"
 
-	"github.com/google/gopacket"
-	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
-
-	a "PacketSniffer/API"
-	f "PacketSniffer/file"
-	h "PacketSniffer/helper"
-	s "PacketSniffer/structs"
 )
 
+type TargetDevice struct {
+	DeviceName string `json:"devicename"`
+	DeviceIP   string `json:"deviceip"`
+}
 
-var (
-	ipPacket    map[string]int
-	maxPacketSize uint16 = 0
-	minPacketSize uint16 = 65535 // Start with max valu
-)
+func Okay(message string, args ...interface{}){fmt.Printf("[+] " + message+"\n", args...)}
+func Info(message string, args ...interface{}){fmt.Printf("[i] " + message+"\n", args...)}
+func Warn(message string, args ...interface{}){fmt.Printf("[!] " + message+"\n", args...)}
 
 
-
-func getDefaultInterface() *s.TargetDevice {
+func GetDefaultInterface() *TargetDevice {
 	// Get the default gateway
 	var gateway net.IP
 	var err error
@@ -48,33 +41,33 @@ func getDefaultInterface() *s.TargetDevice {
 	}
 
 	if err != nil {
-		h.Warn("Error getting default gateway: " + err.Error())
+		Warn("Error getting default gateway: " + err.Error())
 		return nil
 	}
 
 	// Get all network devices
 	devices, err := pcap.FindAllDevs()
 	if err != nil {
-		h.Warn("Error finding network devices: " + err.Error())
+		Warn("Error finding network devices: " + err.Error())
 		return nil
 	}
 
-	h.Okay("Available Interfaces:")
+	Okay("Available Interfaces:")
 	for _, device := range devices {
-		h.Info("Name: %s, Addresses: %v", device.Name, device.Addresses)
+		Info("Name: %s, Addresses: %v", device.Name, device.Addresses)
 		for _, address := range device.Addresses {
 			mask := net.IP(address.Netmask).String()
-			h.Info("Checking device: %s, IP: %s, Mask: %s\n", device.Name, address.IP.String(), mask)
+			Info("Checking device: %s, IP: %s, Mask: %s\n", device.Name, address.IP.String(), mask)
 
 			// Check if the IP is in the same subnet as the default gateway
 			if isInSameSubnet(net.ParseIP(address.IP.String()), gateway, net.IP(address.Netmask)) {
-				h.Okay("Selected device: %s\n", device.Name)
-				return &s.TargetDevice{DeviceName: device.Name, DeviceIP: address.IP.String()}
+				Okay("Selected device: %s\n", device.Name)
+				return &TargetDevice{DeviceName: device.Name, DeviceIP: address.IP.String()}
 			}
 		}
 	}
 
-	h.Warn("No suitable network interfaces found")
+	Warn("No suitable network interfaces found")
 	return nil
 }
 
@@ -151,91 +144,4 @@ func isInSameSubnet(ip1, ip2, mask net.IP) bool {
 	ip1Masked := ip1.Mask(net.IPMask(mask))
 	ip2Masked := ip2.Mask(net.IPMask(mask))
 	return ip1Masked.Equal(ip2Masked)
-}
-
-
-
-
-
-
-
-func ipv4PacketScan(packet gopacket.Packet, sourceIP string, targetIP string) *s.PacketScanResults {
-	ip4Layer := packet.Layer(layers.LayerTypeIPv4)
-	if ip4Layer != nil {
-		ip, _ := ip4Layer.(*layers.IPv4)
-
-		// Skip packets not between the two IPs
-		if !((ip.SrcIP.String() == sourceIP && ip.DstIP.String() == targetIP) || (ip.SrcIP.String() == targetIP && ip.DstIP.String() == sourceIP)) {
-			return nil
-		}
-
-		// Ensure ipPacket map is initialized
-		if ipPacket == nil {
-			ipPacket = make(map[string]int)
-		}
-
-		// Update packet count for source IP
-		ipPacket[ip.SrcIP.String()]++
-
-		// Initialize minPacketSize if needed
-		if minPacketSize == 0 || ip.Length < minPacketSize {
-			minPacketSize = ip.Length
-		}
-
-		// Track max packet size
-		if ip.Length > maxPacketSize {
-			maxPacketSize = ip.Length
-		}
-
-		// Create IPv4 scan result
-		IPV4Results := s.NewIPv4ScanResults(ip, h.CleanPayload(ip.Payload))
-
-		// TCP Scan Results
-		if tcpLayer := packet.Layer(layers.LayerTypeTCP); tcpLayer != nil {
-			tcp, _ := tcpLayer.(*layers.TCP)
-			TCPResults := s.NewTCPScanResults(ip, tcp)
-			return s.NewPacketScanResults(&IPV4Results, &TCPResults)
-		}
-
-		// Create and return PacketScanResults
-	}
-	return nil
-}
-
-
-
-
-
-func Sniff(targetIP string, mode string) {
-	device := getDefaultInterface()
-	h.Okay("Using network interface: %s\n", device)
-
-	handle, err := pcap.OpenLive(device.DeviceName, 1600, true, pcap.BlockForever)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer handle.Close()
-
-	err = handle.SetBPFFilter("tcp and host" + targetIP)
-	if err != nil{
-		h.Warn("error")
-	}
-
-	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
-	h.Info("Starting packet scan")
-	for packet := range packetSource.Packets() {
-		scanResult := ipv4PacketScan(packet, device.DeviceIP, targetIP)
-
-		if scanResult != nil{
-			if mode == "API" || mode == "api"{
-				a.SendToAPI(*scanResult)
-			}else if mode == "file" || mode == "File"{
-				f.SendToFile(*scanResult)
-				defer f.CloseFile()
-			}else{
-				fmt.Println(scanResult.ToJSON())
-			}
-			
-		}
-	}
 }
