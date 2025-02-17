@@ -19,3 +19,41 @@ AI STUFF:
 
 - risk score based on probability score -
     -> require research on what makes packet bad boy (metric of the packet) what probability rule to use
+
+
+TYPES OF ATTACKS TO DETECT:
+-DoS through FLOOD -> send packets at rapid fire
+-Port spoofing -> send packet through wrong port for protocol
+
+
+1. IP Header Fields:
+Source IP Address: Check for known malicious IP addresses or IPs from suspicious geographic locations.
+
+Destination IP Address: Ensure it matches expected destinations; unexpected destinations could indicate exfiltration or command-and-control (C2) traffic.
+
+TTL (Time to Live): Unusual TTL values might indicate spoofing or tunneling.
+
+Protocol: Ensure it is TCP (value 6); unexpected protocols could indicate encapsulation of malicious traffic.
+
+IP Flags: Check for unusual fragmentation or reserved flag usage, which could be used in evasion techniques.
+
+2. TCP Header Fields:
+Source Port: Unusual or high-numbered ports might indicate malicious activity.
+
+Destination Port: Ensure it matches expected services; unexpected ports could indicate scanning or exploitation attempts.
+
+Sequence Number: Unusual patterns or out-of-order sequences might indicate spoofing or replay attacks.
+
+Acknowledgment Number: Check for unexpected values, which could indicate tampering.
+
+Flags (SYN, ACK, RST, FIN, PSH, URG):
+
+SYN Flood: Excessive SYN packets without corresponding ACKs could indicate a SYN flood attack.
+
+RST/FIN Scans: Excessive RST or FIN packets might indicate scanning or reconnaissance.
+
+URG Flag: Unusual use of the URG flag could indicate an attempt to exploit certain vulnerabilities.
+
+Window Size: Unusual window sizes might indicate evasion techniques or buffer overflow attempts.
+
+Checksum: Verify the checksum to ensure the packet hasn’t been tampered with.

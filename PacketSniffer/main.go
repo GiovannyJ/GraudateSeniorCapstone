@@ -5,6 +5,7 @@ import (
 	
 )
 
+// const targetIP = "192.168.0.135"
 const targetIP = "8.8.8.8"
 
 /*
@@ -14,9 +15,5 @@ File/file = sends to file in /PCAP_Files directory
 empty string = prints to console
 */
 func main() {
-<<<<<<< Updated upstream
-	p.Sniff(targetIP, "API")
-=======
-	p.Sniff(targetIP, "file")
->>>>>>> Stashed changes
+	p.Sniff(targetIP, "")
 }

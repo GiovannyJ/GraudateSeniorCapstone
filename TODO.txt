@@ -2,15 +2,15 @@ MalPacket
 -create script that simulates malicious traffic
 struct: malpacket{ip info, mal_packet_flag}
 
+ISSUE:
+packets are encrypted with TLS so its hard to read payloads -> read headers and time stamps instead
+encryption w TLS comes from a key shared from host and client
+packets that arent encrypted we can get signatures from
+
+
 PacketSniffer
 Allow for TCP Traffic to be scanned
-packetsniff.go: 
-    - func ipv4PacketScan(packet gopacket.Packet, source_ip string, targetIP string) *s.TCPScanResults
-structs
-    - struct TCPScanResults
-    - func NewTCPScanResults
-    - func ToJSON()
-    - func PrintScanResults()
+-fix TCP packet scan
 
 AI STUFF:
 -supervised: kaggle dataset

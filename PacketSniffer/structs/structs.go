@@ -92,3 +92,74 @@ func (r IPv4ScanResults) PrintScanResults() {
 	fmt.Println("Payload:", r.Payload)
 	fmt.Println("#########################################################################")
 }
+
+
+type TCPScanResults struct {
+	SourceIP           string `json:"source_ip"`
+	DestinationIP      string `json:"destination_ip"`
+	SourcePort         string `json:"source_port"`
+	DestinationPort    string `json:"destination_port"`
+	SequenceNumber     uint32 `json:"sequence_number"`
+	AcknowledgmentNum  uint32 `json:"acknowledgment_number"`
+	DataOffset         uint8  `json:"data_offset"`
+	Flags              string `json:"flags"`
+	WindowSize         uint16 `json:"window_size"`
+	Checksum           uint16 `json:"checksum"`
+	UrgentPointer      uint16 `json:"urgent_pointer"`
+	Payload            string `json:"payload"`
+	PayloadHex         string `json:"payload_hex"`
+	TimeStamp	time.Time		  `json:"timestamp"`
+
+}
+func NewTCPScanResults(ip *layers.IPv4, tcp *layers.TCP) TCPScanResults {
+	// Format flags as a string
+	flags := fmt.Sprintf("FIN:%t SYN:%t RST:%t PSH:%t ACK:%t URG:%t ECE:%t CWR:%t NS:%t",
+		tcp.FIN, tcp.SYN, tcp.RST, tcp.PSH, tcp.ACK, tcp.URG, tcp.ECE, tcp.CWR, tcp.NS)
+
+	// Create the TCPScanResults
+	return TCPScanResults{
+		SourceIP:           ip.SrcIP.String(),
+		DestinationIP:      ip.DstIP.String(),
+		SourcePort:         tcp.SrcPort.String(),
+		DestinationPort:    tcp.DstPort.String(),
+		SequenceNumber:     tcp.Seq,
+		AcknowledgmentNum:  tcp.Ack,
+		DataOffset:         tcp.DataOffset,
+		Flags:              flags,
+		WindowSize:         tcp.Window,
+		Checksum:           tcp.Checksum,
+		UrgentPointer:      tcp.Urgent,
+		Payload:            string(tcp.Payload), // Payload as string
+		PayloadHex:         fmt.Sprintf("%x", tcp.Payload), // Payload as hex
+		TimeStamp: 			time.Now(),
+	}
+}
+
+func (r TCPScanResults) ToJSON() string {
+	data, err := json.MarshalIndent(r, "", "  ")
+	if err != nil {
+		return "{}"
+	}
+	return string(data)
+}
+
+
+type PacketScanResults struct {
+	IPv4Data *IPv4ScanResults `json:"ipv4data"`
+	TCPData  *TCPScanResults  `json:"tcpdata"`
+}
+
+func NewPacketScanResults(i *IPv4ScanResults, t *TCPScanResults) *PacketScanResults {
+	return &PacketScanResults{
+		IPv4Data: i,
+		TCPData:  t,
+	}
+}
+
+func (r PacketScanResults) ToJSON() string {
+	data, err := json.MarshalIndent(r, "", "  ")
+	if err != nil {
+		return "{}"
+	}
+	return string(data)
+}

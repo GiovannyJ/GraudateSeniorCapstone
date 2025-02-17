@@ -156,42 +156,52 @@ func isInSameSubnet(ip1, ip2, mask net.IP) bool {
 
 
 
-func ipv4PacketScan(packet gopacket.Packet, source_ip string, targetIP string) *s.IPv4ScanResults{
+
+
+
+func ipv4PacketScan(packet gopacket.Packet, sourceIP string, targetIP string) *s.PacketScanResults {
 	ip4Layer := packet.Layer(layers.LayerTypeIPv4)
 	if ip4Layer != nil {
 		ip, _ := ip4Layer.(*layers.IPv4)
 
-		if !((ip.SrcIP.String() == source_ip && ip.DstIP.String() == targetIP) || (ip.SrcIP.String() == targetIP && ip.DstIP.String() == source_ip)) {
-			return nil// Skip packet if not between the two IPs
+		// Skip packets not between the two IPs
+		if !((ip.SrcIP.String() == sourceIP && ip.DstIP.String() == targetIP) || (ip.SrcIP.String() == targetIP && ip.DstIP.String() == sourceIP)) {
+			return nil
 		}
 
-		// Ensure ipPacket map is initialized before assigning values
+		// Ensure ipPacket map is initialized
 		if ipPacket == nil {
 			ipPacket = make(map[string]int)
-		}		
-
-		// Update packet count for source IP
-		if value, ok := ipPacket[ip.SrcIP.String()]; !ok {
-			ipPacket[ip.SrcIP.String()] = 1
-		} else {
-			ipPacket[ip.SrcIP.String()] = value + 1
 		}
 
-		// Track max and min packet size
+		// Update packet count for source IP
+		ipPacket[ip.SrcIP.String()]++
+
+		// Initialize minPacketSize if needed
+		if minPacketSize == 0 || ip.Length < minPacketSize {
+			minPacketSize = ip.Length
+		}
+
+		// Track max packet size
 		if ip.Length > maxPacketSize {
 			maxPacketSize = ip.Length
 		}
-		if ip.Length < minPacketSize {
-			minPacketSize = ip.Length
+
+		// Create IPv4 scan result
+		IPV4Results := s.NewIPv4ScanResults(ip, h.CleanPayload(ip.Payload))
+
+		// TCP Scan Results
+		if tcpLayer := packet.Layer(layers.LayerTypeTCP); tcpLayer != nil {
+			tcp, _ := tcpLayer.(*layers.TCP)
+			TCPResults := s.NewTCPScanResults(ip, tcp)
+			return s.NewPacketScanResults(&IPV4Results, &TCPResults)
 		}
-		
-		// Print IPv4 details
-		results := s.NewIPv4ScanResults(ip, h.CleanPayload(ip.Payload))
-		
-		return &results
+
+		// Create and return PacketScanResults
 	}
 	return nil
 }
+
 
 
 
@@ -206,6 +216,11 @@ func Sniff(targetIP string, mode string) {
 	}
 	defer handle.Close()
 
+	err = handle.SetBPFFilter("tcp and host" + targetIP)
+	if err != nil{
+		h.Warn("error")
+	}
+
 <<<<<<< Updated upstream
 =======
 	// err = handle.SetBPFFilter("tcp and host" + targetIP)
@@ -218,6 +233,7 @@ func Sniff(targetIP string, mode string) {
 	h.Info("Starting packet scan")
 	for packet := range packetSource.Packets() {
 		scanResult := ipv4PacketScan(packet, device.DeviceIP, targetIP)
+
 		if scanResult != nil{
 			if mode == "API" || mode == "api"{
 				a.SendToAPI(*scanResult)

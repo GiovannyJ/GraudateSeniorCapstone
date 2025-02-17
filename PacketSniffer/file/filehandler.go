@@ -1,7 +1,6 @@
 package file
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"sync"
@@ -45,7 +44,7 @@ func CreateFileWithTimestamp() (*os.File, error) {
 }
 
 // SendToFile appends the IPv4ScanResult to the same file (opened in append mode)
-func SendToFile(result s.IPv4ScanResults) error {
+func SendToFile(result s.PacketScanResults) error {
 	// Ensure the file is opened (first call will create/open the file)
 	if sessionFile == nil {
 		// Create the file with a timestamp if it's not opened yet
@@ -55,16 +54,11 @@ func SendToFile(result s.IPv4ScanResults) error {
 		}
 	}
 
-	// Serialize the IPv4ScanResults struct into JSON
-	jsonData, err := json.MarshalIndent(result, "", "  ")
-	if err != nil {
-		h.Warn("Error serializing data: %v", err)
-		return err
-	}
+
 
 	// Add a comma before the JSON object if it's not the first write
 	if !firstWrite {
-		_, err = sessionFile.Write([]byte(",\n"))
+		_, err := sessionFile.Write([]byte(",\n"))
 		if err != nil {
 			h.Warn("Error writing comma to file: %v", err)
 			return err
@@ -74,7 +68,7 @@ func SendToFile(result s.IPv4ScanResults) error {
 	}
 
 	// Write the JSON data to the file
-	_, err = sessionFile.Write(jsonData)
+	_, err := sessionFile.Write([]byte(result.ToJSON()))
 	if err != nil {
 		h.Warn("Error writing to file: %v", err)
 		return err

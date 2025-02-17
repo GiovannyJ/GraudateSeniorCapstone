@@ -11,7 +11,7 @@ import (
 
 
 
-func SendToAPI(data s.IPv4ScanResults) {
+func SendToAPI(data s.PacketScanResults) {
 	// Convert the struct to JSON
 	jsonData, err := json.Marshal(data)
 	if err != nil {
