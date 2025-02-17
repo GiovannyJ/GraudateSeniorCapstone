@@ -115,7 +115,6 @@ func simulateEncryptedPayload(payload []byte) []byte {
 // Send a TCP packet
 func sendTCPPacket(handle *pcap.Handle, srcIP, dstIP string, srcPort, dstPort int, payload []byte) {
 	// Create the Ethernet layer
-=======
 	// Simulate sending packets
 	for i := 0; i < 20; i++ {
 		var payload []byte
@@ -162,7 +161,6 @@ func simulateEncryptedPayload(payload []byte) []byte {
 }
 
 func sendTCPPacket(handle *pcap.Handle, srcIP, dstIP string, srcPort, dstPort int, payload []byte) {
->>>>>>> Stashed changes
 	eth := &layers.Ethernet{
 		SrcMAC:       net.HardwareAddr{0x00, 0x0C, 0x29, 0xAB, 0xCD, 0xEF},
 		DstMAC:       net.HardwareAddr{0x00, 0x0C, 0x29, 0x12, 0x34, 0x56},
@@ -192,7 +190,6 @@ func sendTCPPacket(handle *pcap.Handle, srcIP, dstIP string, srcPort, dstPort in
 	}
 	err := gopacket.SerializeLayers(buf, opts, eth, ip, tcp, gopacket.Payload(payload))
 	if err != nil {
-=======
 		SrcPort: layers.TCPPort(srcPort),
 		DstPort: layers.TCPPort(dstPort),
 		SYN:     true,
@@ -202,7 +199,7 @@ func sendTCPPacket(handle *pcap.Handle, srcIP, dstIP string, srcPort, dstPort in
 	buf := gopacket.NewSerializeBuffer()
 	opts := gopacket.SerializeOptions{FixLengths: true, ComputeChecksums: true}
 	if err := gopacket.SerializeLayers(buf, opts, eth, ip, tcp, gopacket.Payload(payload)); err != nil {
->>>>>>> Stashed changes
+
 		log.Fatalf("Error serializing packet: %v", err)
 	}
 
@@ -210,6 +207,4 @@ func sendTCPPacket(handle *pcap.Handle, srcIP, dstIP string, srcPort, dstPort in
 		log.Fatalf("Error sending packet: %v", err)
 	}
 }
-=======
-}
->>>>>>> Stashed changes
+
