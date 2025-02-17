@@ -206,6 +206,14 @@ func Sniff(targetIP string, mode string) {
 	}
 	defer handle.Close()
 
+<<<<<<< Updated upstream
+=======
+	// err = handle.SetBPFFilter("tcp and host" + targetIP)
+	// if err != nil{
+	// 	h.Warn("error")
+	// }
+
+>>>>>>> Stashed changes
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 	h.Info("Starting packet scan")
 	for packet := range packetSource.Packets() {

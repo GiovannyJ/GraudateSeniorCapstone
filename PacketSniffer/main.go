@@ -14,5 +14,9 @@ File/file = sends to file in /PCAP_Files directory
 empty string = prints to console
 */
 func main() {
+<<<<<<< Updated upstream
 	p.Sniff(targetIP, "API")
+=======
+	p.Sniff(targetIP, "file")
+>>>>>>> Stashed changes
 }

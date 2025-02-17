@@ -1,4 +1,9 @@
+<<<<<<< Updated upstream:MalPacket/malpacketdetect.go
 package main
+=======
+package helper
+// package main
+>>>>>>> Stashed changes:MalPacket/helper/malpacketdetect.go
 
 import (
 	"fmt"
