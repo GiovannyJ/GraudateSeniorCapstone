@@ -24,7 +24,7 @@ func main() {
 
 	handle, err := pcap.OpenLive(device.DeviceName, 1600, true, pcap.BlockForever)
 	if err != nil {
-		log.Fatalf("Error opening device %s: %v", device, err)
+		log.Fatalf("Error opening device %s: %v", device.DeviceName, err)
 	}
 	defer handle.Close()
 
@@ -115,13 +115,60 @@ func simulateEncryptedPayload(payload []byte) []byte {
 // Send a TCP packet
 func sendTCPPacket(handle *pcap.Handle, srcIP, dstIP string, srcPort, dstPort int, payload []byte) {
 	// Create the Ethernet layer
+=======
+	// Simulate sending packets
+	for i := 0; i < 20; i++ {
+		var payload []byte
+
+		payload = generateHTTPPayload()
+		// if i%2 == 0 {
+		// } else {
+		// 	payload = generateMaliciousPayload()
+		// }
+
+		encryptedPayload := simulateEncryptedPayload(payload)
+
+		sendTCPPacket(handle, "192.168.0.135", "192.168.0.135", 489, 80, encryptedPayload)
+
+		log.Printf("Packet %d sent (Malicious: %v)\n", i+1, i%2 != 0)
+		time.Sleep(100 * time.Millisecond)
+	}
+}
+
+func generateHTTPPayload() []byte {
+	paths := []string{"/", "/index.html", "/about", "/contact", "/products"}
+	randomPath := paths[rand.Intn(len(paths))]
+	return []byte(fmt.Sprintf("GET %s HTTP/1.1\r\nHost: example.com\r\n\r\n", randomPath))
+}
+
+func generateMaliciousPayload() []byte {
+	maliciousPayloads := []string{
+		"'; DROP TABLE users; --",
+		"<script>alert('XSS')</script>",
+		"../../../../etc/passwd",
+		"OR 1=1; --",
+	}
+	randomIndex := rand.Intn(len(maliciousPayloads))
+	return []byte(maliciousPayloads[randomIndex])
+}
+
+func simulateEncryptedPayload(payload []byte) []byte {
+	encryptedPayload := make([]byte, len(payload))
+	_, err := rand.Read(encryptedPayload)
+	if err != nil {
+		log.Fatalf("Error generating random payload: %v", err)
+	}
+	return encryptedPayload
+}
+
+func sendTCPPacket(handle *pcap.Handle, srcIP, dstIP string, srcPort, dstPort int, payload []byte) {
+>>>>>>> Stashed changes
 	eth := &layers.Ethernet{
-		SrcMAC:       net.HardwareAddr{0x00, 0x0C, 0x29, 0xAB, 0xCD, 0xEF}, // Source MAC
-		DstMAC:       net.HardwareAddr{0x00, 0x0C, 0x29, 0x12, 0x34, 0x56}, // Destination MAC
+		SrcMAC:       net.HardwareAddr{0x00, 0x0C, 0x29, 0xAB, 0xCD, 0xEF},
+		DstMAC:       net.HardwareAddr{0x00, 0x0C, 0x29, 0x12, 0x34, 0x56},
 		EthernetType: layers.EthernetTypeIPv4,
 	}
 
-	// Create the IPv4 layer
 	ip := &layers.IPv4{
 		Version:  4,
 		TTL:      64,
@@ -130,7 +177,6 @@ func sendTCPPacket(handle *pcap.Handle, srcIP, dstIP string, srcPort, dstPort in
 		Protocol: layers.IPProtocolTCP,
 	}
 
-	// Create the TCP layer
 	tcp := &layers.TCP{
 		SrcPort: layers.TCPPort(srcPort), // Source port
 		DstPort: layers.TCPPort(dstPort), // Destination port
@@ -146,12 +192,24 @@ func sendTCPPacket(handle *pcap.Handle, srcIP, dstIP string, srcPort, dstPort in
 	}
 	err := gopacket.SerializeLayers(buf, opts, eth, ip, tcp, gopacket.Payload(payload))
 	if err != nil {
+=======
+		SrcPort: layers.TCPPort(srcPort),
+		DstPort: layers.TCPPort(dstPort),
+		SYN:     true,
+	}
+	tcp.SetNetworkLayerForChecksum(ip)
+
+	buf := gopacket.NewSerializeBuffer()
+	opts := gopacket.SerializeOptions{FixLengths: true, ComputeChecksums: true}
+	if err := gopacket.SerializeLayers(buf, opts, eth, ip, tcp, gopacket.Payload(payload)); err != nil {
+>>>>>>> Stashed changes
 		log.Fatalf("Error serializing packet: %v", err)
 	}
 
-	// Send the packet
-	err = handle.WritePacketData(buf.Bytes())
-	if err != nil {
+	if err := handle.WritePacketData(buf.Bytes()); err != nil {
 		log.Fatalf("Error sending packet: %v", err)
 	}
 }
+=======
+}
+>>>>>>> Stashed changes
