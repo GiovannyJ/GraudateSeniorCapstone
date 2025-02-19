@@ -11,6 +11,7 @@ packets that arent encrypted we can get signatures from
 PacketSniffer
 Allow for TCP Traffic to be scanned
 -fix TCP packet scan
+-allow for other PROTOCOLS in the second layer
 
 AI STUFF:
 -supervised: kaggle dataset
