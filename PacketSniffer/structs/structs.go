@@ -109,8 +109,8 @@ type TCPScanResults struct {
 	Payload            string `json:"payload"`
 	PayloadHex         string `json:"payload_hex"`
 	TimeStamp	time.Time		  `json:"timestamp"`
-
 }
+
 func NewTCPScanResults(ip *layers.IPv4, tcp *layers.TCP) TCPScanResults {
 	// Format flags as a string
 	flags := fmt.Sprintf("FIN:%t SYN:%t RST:%t PSH:%t ACK:%t URG:%t ECE:%t CWR:%t NS:%t",

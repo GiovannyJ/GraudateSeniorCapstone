@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/google/gopacket/pcap"
+	"github.com/google/gopacket"
+	"github.com/google/gopacket/layers"
 )
 
 type TargetDevice struct {
@@ -144,4 +146,97 @@ func isInSameSubnet(ip1, ip2, mask net.IP) bool {
 	ip1Masked := ip1.Mask(net.IPMask(mask))
 	ip2Masked := ip2.Mask(net.IPMask(mask))
 	return ip1Masked.Equal(ip2Masked)
+}
+
+// func SendTCPPacket(handle *pcap.Handle, srcIP, dstIP string, srcPort, dstPort int, payload []byte) {
+// 	eth := &layers.Ethernet{
+// 		SrcMAC:       net.HardwareAddr{0x00, 0x0C, 0x29, 0xAB, 0xCD, 0xEF},
+// 		DstMAC:       net.HardwareAddr{0x00, 0x0C, 0x29, 0x12, 0x34, 0x56},
+// 		EthernetType: layers.EthernetTypeIPv4,
+// 	}
+
+// 	ip := &layers.IPv4{
+// 		Version:  4,
+// 		TTL:      64,
+// 		SrcIP:    net.ParseIP(srcIP).To4(),
+// 		DstIP:    net.ParseIP(dstIP).To4(),
+// 		Protocol: layers.IPProtocolTCP,
+// 	}
+
+// 	tcp := &layers.TCP{
+// 		SrcPort: layers.TCPPort(srcPort),
+// 		DstPort: layers.TCPPort(dstPort),
+// 		SYN:     true,
+// 	}
+// 	tcp.SetNetworkLayerForChecksum(ip)
+
+// 	buf := gopacket.NewSerializeBuffer()
+// 	opts := gopacket.SerializeOptions{FixLengths: true, ComputeChecksums: true}
+// 	if err := gopacket.SerializeLayers(buf, opts, eth, ip, tcp, gopacket.Payload(payload)); err != nil {
+// 		Warn("Error serializing packet: %v", err)
+// 	}
+
+// 	if err := handle.WritePacketData(buf.Bytes()); err != nil {
+// 		Warn("Error sending packet: %v", err)
+// 	}
+// 	Okay("Packet sent")
+// }
+
+func SendTCPPacket(handle *pcap.Handle, srcIP, dstIP string, srcPort, dstPort int, payload []byte) error {
+    // Parse IP addresses
+    srcIPAddr := net.ParseIP(srcIP).To4()
+    dstIPAddr := net.ParseIP(dstIP).To4()
+    if srcIPAddr == nil || dstIPAddr == nil {
+        Warn("Invalid IP address")
+    }
+
+    // Create Ethernet layer
+    eth := &layers.Ethernet{
+        SrcMAC:       net.HardwareAddr{0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, // Replace with your source MAC
+        DstMAC:       net.HardwareAddr{0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, // Replace with your destination MAC
+        EthernetType: layers.EthernetTypeIPv4,
+    }
+
+    // Create IP layer
+    ip := &layers.IPv4{
+        SrcIP:    srcIPAddr,
+        DstIP:    dstIPAddr,
+        Version:  4,
+        TTL:      64,
+        Protocol: layers.IPProtocolTCP,
+    }
+
+    // Create TCP layer
+    tcp := &layers.TCP{
+        SrcPort: layers.TCPPort(srcPort),
+        DstPort: layers.TCPPort(dstPort),
+        Seq:     1105024978, // Random sequence number
+        SYN:     true,       // Set SYN flag (or other flags as needed)
+        Window:  14600,      // Default window size
+    }
+
+    // Set TCP checksum
+    err := tcp.SetNetworkLayerForChecksum(ip)
+    if err != nil {
+        return err
+    }
+
+    // Serialize the packet
+    buffer := gopacket.NewSerializeBuffer()
+    opts := gopacket.SerializeOptions{
+        FixLengths:       true,
+        ComputeChecksums: true,
+    }
+    err = gopacket.SerializeLayers(buffer, opts, eth, ip, tcp, gopacket.Payload(payload))
+    if err != nil {
+        return err
+    }
+
+    // Send the packet
+    err = handle.WritePacketData(buffer.Bytes())
+    if err != nil {
+        return err
+    }
+
+    return nil
 }

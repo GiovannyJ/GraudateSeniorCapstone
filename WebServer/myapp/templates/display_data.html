@@ -29,22 +29,22 @@
                         response.data.forEach(function(item) {
                             tableBody.append(
                                 `<tr>
-                                    <td>${item.type}</td>
-                                    <td>${item.source}</td>
-                                    <td>${item.destination}</td>
-                                    <td>${item.protocol}</td>
-                                    <td>${item.flags || 'None'}</td>
-                                    <td>${item.frag_offset}</td>
-                                    <td>${item.ihl}</td>
-                                    <td>${item.length}</td>
-                                    <td>${item.checksum}</td>
-                                    <td>${item.ttl}</td>
-                                    <td>${item.version}</td>
-                                    <td>${item.tos}</td>
-                                    <td><pre>${item.payload}</pre></td>
-                                    <td><pre>${item.base_layer?.Contents || ''}</pre></td>
-                                    <td><pre>${item.base_layer?.Payload || ''}</pre></td>
-                                    <td><pre>${item.timestamp}</pre></td>
+                                    <td>${item.ipv4data.type}</td>
+                                    <td>${item.ipv4data.source}</td>
+                                    <td>${item.ipv4data.destination}</td>
+                                    <td>${item.ipv4data.protocol}</td>
+                                    <td>${item.ipv4data.flags || 'None'}</td>
+                                    <td>${item.ipv4data.frag_offset}</td>
+                                    <td>${item.ipv4data.ihl}</td>
+                                    <td>${item.ipv4data.length}</td>
+                                    <td>${item.ipv4data.checksum}</td>
+                                    <td>${item.ipv4data.ttl}</td>
+                                    <td>${item.ipv4data.version}</td>
+                                    <td>${item.ipv4data.tos}</td>
+                                    <td><pre>${item.ipv4data.payload}</pre></td>
+                                    <td><pre>${item.ipv4data.base_layer?.Contents || ''}</pre></td>
+                                    <td><pre>${item.ipv4data.base_layer?.Payload || ''}</pre></td>
+                                    <td><pre>${item.ipv4data.timestamp}</pre></td>
                                 </tr>`
                             );
                         });

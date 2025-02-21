@@ -24,7 +24,7 @@ import (
 var (
 	ipPacket    map[string]int
 	maxPacketSize uint16 = 0
-	minPacketSize uint16 = 65535 // Start with max valu
+	minPacketSize uint16 = 65535 // Start with max value
 )
 
 
@@ -189,6 +189,7 @@ func ipv4PacketScan(packet gopacket.Packet, sourceIP string, targetIP string) *s
 
 		// Create IPv4 scan result
 		IPV4Results := s.NewIPv4ScanResults(ip, h.CleanPayload(ip.Payload))
+		
 
 		// TCP Scan Results
 		if tcpLayer := packet.Layer(layers.LayerTypeTCP); tcpLayer != nil {
@@ -196,6 +197,7 @@ func ipv4PacketScan(packet gopacket.Packet, sourceIP string, targetIP string) *s
 			TCPResults := s.NewTCPScanResults(ip, tcp)
 			return s.NewPacketScanResults(&IPV4Results, &TCPResults)
 		}
+
 
 		// Create and return PacketScanResults
 	}
@@ -210,16 +212,11 @@ func Sniff(targetIP string, mode string) {
 	device := getDefaultInterface()
 	h.Okay("Using network interface: %s\n", device)
 
-	handle, err := pcap.OpenLive(device.DeviceName, 1600, true, pcap.BlockForever)
+	handle, err := pcap.OpenLive(device.DeviceName, 65535, true, pcap.BlockForever)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer handle.Close()
-
-	err = handle.SetBPFFilter("tcp and host" + targetIP)
-	if err != nil{
-		h.Warn("error")
-	}
 
 	// err = handle.SetBPFFilter("tcp and host" + targetIP)
 	// if err != nil{
@@ -230,6 +227,7 @@ func Sniff(targetIP string, mode string) {
 	h.Info("Starting packet scan")
 	for packet := range packetSource.Packets() {
 		scanResult := ipv4PacketScan(packet, device.DeviceIP, targetIP)
+		// err = handle.WritePacketData(packet.Metadata().CaptureInfo.Data, packet.Metadata().CaptureInfo.Length)
 
 		if scanResult != nil{
 			if mode == "API" || mode == "api"{
