@@ -14,6 +14,7 @@ def ipv4_data(request):
         try:
             # Parse incoming JSON data
             data = json.loads(request.body.decode("utf-8"))
+            #! THIS IS WHERE THE AI CODE WILL LIVE AND MUTATE THE DATA
             live_data.append(data)  # Store the latest received data
             
             return JsonResponse({"message": "IPv4 data received successfully!"}, status=200)
