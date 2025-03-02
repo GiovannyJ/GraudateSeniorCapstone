@@ -1,1 +1,5 @@
 pip install django
+pip install pandas
+pip install numpy
+pip install ipaddress
+pip install scikit-learn
