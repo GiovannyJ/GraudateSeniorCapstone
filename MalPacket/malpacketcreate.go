@@ -18,6 +18,16 @@ func init() {
 
 const targetIP = "192.168.0.135"
 
+type PacketType string
+
+const (
+	SYNFlood         PacketType = "SYNFlood"
+	BufferOverflow   PacketType = "BufferOverflow"
+	SpoofPacket      PacketType = "SpoofPacket"
+	NormalPacket     PacketType = "NormalPacket"
+)
+
+// const targetCount = 250 
 func main() {
 	
 	device := h.GetDefaultInterface()
@@ -31,31 +41,69 @@ func main() {
 
 	// Simulate sending packets
 	
-	for i := 0; i < 1000; i++ {
-		// r := rand.Intn(100) // Generate a random number between 0 and 99
+	// packetCounts := map[PacketType]int{
+	// 	SYNFlood:       0,
+	// 	BufferOverflow: 0,
+	// 	SpoofPacket:    0,
+	// 	NormalPacket:   0,
+	// }
 	
-		// switch {
-		// case r < 15:
-		// 	a.GenerateSYNFlood(handle, targetIP, targetIP, 489, 800)
-		// 	h.Okay("SYN Packet Sent")
+	// for i := 0; i < 1000; i++ {
+	// 	r := rand.Intn(100) // Generate a random number between 0 and 99
 	
-		// case r <25: 
-		// 	a.GenerateBufferOverFlowPacket(handle, targetIP, targetIP, 489, 80)
-		// 	h.Okay("Buffer Overflow Packet Sent")
+	// 	switch {
+	// 	case r < 15 && packetCounts[SYNFlood] < targetCount:
+	// 		a.GenerateSYNFlood(handle, targetIP, targetIP, 489, 800)
+	// 		packetCounts[SYNFlood] += 800
+	// 		h.Okay("SYN Packet Sent")
 	
-		// default:
-			// payload := generateHTTPPayload()
-			// encryptedPayload := simulateEncryptedPayload(payload)
-			// h.SendTCPPacket(handle, targetIP, targetIP, 489, 80, encryptedPayload)
-			// h.Okay("Normal Packet Sent")
-		// }
+	// 	case r < 25 && packetCounts[BufferOverflow] < targetCount:
+	// 		a.GenerateBufferOverFlowPacket(handle, targetIP, targetIP, 489, 80)
+	// 		packetCounts[BufferOverflow]++
+	// 		h.Okay("Buffer Overflow Packet Sent")
+	
+	// 	case r < 35 && packetCounts[SpoofPacket] < targetCount:
+	// 		payload := generateHTTPPayload()
+	// 		a.GenerateSpoofPacket(handle, targetIP, targetIP, 443, 443, payload)
+	// 		packetCounts[SpoofPacket]++
+	// 		h.Okay("Spoof Packet Sent")
+	// 	default:
+	// 		if packetCounts[NormalPacket] < targetCount {
+	// 			payload := generateHTTPPayload()
+	// 			encryptedPayload := simulateEncryptedPayload(payload)
+	// 			h.SendTCPPacket(handle, targetIP, targetIP, 489, 80, encryptedPayload)
+	// 			packetCounts[NormalPacket]++
+	// 			h.Okay("Normal Packet Sent")
+	// 		}
+	// 	}
 
-		payload := generateHTTPPayload()
-		a.GenerateSpoofPacket(handle, targetIP, targetIP, 443, 443, payload)
-		h.Okay("Spoof Packet Sent")
+	// 	if packetCounts[SYNFlood] >= targetCount &&
+	// 		packetCounts[BufferOverflow] >= targetCount &&
+	// 		packetCounts[SpoofPacket] >= targetCount &&
+	// 		packetCounts[NormalPacket] >= targetCount {
+	// 		h.Okay("All packet types have reached the target count. Stopping.")
+	// 		break
+	// 	}
+
+	// 	time.Sleep(time.Duration(rand.Intn(500)+100) * time.Millisecond)
+	// }
+
+	for i := 0; i < 1000; i++ {
+		a.GenerateSYNFlood(handle, targetIP, targetIP, 489, 800)
+		h.Okay("SYN Packet Sent")
+
 		
+		// a.GenerateBufferOverFlowPacket(handle, targetIP, targetIP, 489, 80)
+		// h.Okay("Buffer Overflow Packet Sent")
+
 	
-		time.Sleep(100 * time.Millisecond)
+		// payload := generateHTTPPayload()
+		// encryptedPayload := simulateEncryptedPayload(payload)
+		// h.SendTCPPacket(handle, targetIP, targetIP, 489, 80, encryptedPayload)
+		// h.Okay("Normal Packet Sent")
+
+		
+		time.Sleep(time.Duration(rand.Intn(500)+100) * time.Millisecond)
 	}
 }
 

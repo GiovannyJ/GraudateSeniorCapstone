@@ -1,0 +1,481 @@
+[
+{
+  "ipv4data": {
+    "type": "IPv4",
+    "source": "192.168.0.135",
+    "destination": "192.168.0.135",
+    "protocol": "TCP",
+    "flags": null,
+    "frag_offset": 0,
+    "ihl": 5,
+    "length": 77,
+    "options": null,
+    "padding": null,
+    "base_layer": {
+      "Contents": "RQAATQAAAABABvhMwKgAh8CoAIc=",
+      "Payload": "AekAUEHdV9IAAAAAUAI5CK4fAACYZKU0K7688RQHk8ZlgguK282U7B662rDgqQRU5RoasHuWZqY6"
+    },
+    "checksum": 63564,
+    "ttl": 64,
+    "version": 4,
+    "tos": 0,
+    "payload": ".é.PAÝWÒ....P.9.®....d¥4+¾¼ñ...Æe...ÛÍ.ì.ºÚ°à©.Tå..°{.f¦:",
+    "timestamp": "2025-02-23T16:28:27.1203944-05:00"
+  },
+  "tcpdata": {
+    "source_ip": "192.168.0.135",
+    "destination_ip": "192.168.0.135",
+    "source_port": "489(nest-protocol)",
+    "destination_port": "80(http)",
+    "sequence_number": 1105024978,
+    "acknowledgment_number": 0,
+    "data_offset": 5,
+    "flags": "FIN:false SYN:true RST:false PSH:false ACK:false URG:false ECE:false CWR:false NS:false",
+    "window_size": 14600,
+    "checksum": 44575,
+    "urgent_pointer": 0,
+    "payload": "\ufffdd\ufffd4+\ufffd\ufffd\ufffd\u0014\u0007\ufffd\ufffde\ufffd\u000b\ufffd\ufffd͔\ufffd\u001e\ufffdڰ\ufffd\ufffd\u0004T\ufffd\u001a\u001a\ufffd{\ufffdf\ufffd:",
+    "payload_hex": "9864a5342bbebcf1140793c665820b8adbcd94ec1ebadab0e0a90454e51a1ab07b9666a63a",
+    "timestamp": "2025-02-23T16:28:27.1203944-05:00"
+  }
+},
+{
+  "ipv4data": {
+    "type": "IPv4",
+    "source": "192.168.0.135",
+    "destination": "192.168.0.135",
+    "protocol": "TCP",
+    "flags": null,
+    "frag_offset": 0,
+    "ihl": 5,
+    "length": 84,
+    "options": null,
+    "padding": null,
+    "base_layer": {
+      "Contents": "RQAAVAAAAABABvhFwKgAh8CoAIc=",
+      "Payload": "AekAUEHdV9IAAAAAUAI5CIsgAAAJNixUJ7M0Ig0JlgXKtNJ7J0m5hcEQz+mgdmFCuIIVZY31fTpwiwlGfRy4Hw=="
+    },
+    "checksum": 63557,
+    "ttl": 64,
+    "version": 4,
+    "tos": 0,
+    "payload": ".é.PAÝWÒ....P.9.. ...6,T'³4\"\r...Ê´Ò{'I¹.Á.Ïé.vaB¸..e.õ}:p..F}.¸.",
+    "timestamp": "2025-02-23T16:28:27.6110856-05:00"
+  },
+  "tcpdata": {
+    "source_ip": "192.168.0.135",
+    "destination_ip": "192.168.0.135",
+    "source_port": "489(nest-protocol)",
+    "destination_port": "80(http)",
+    "sequence_number": 1105024978,
+    "acknowledgment_number": 0,
+    "data_offset": 5,
+    "flags": "FIN:false SYN:true RST:false PSH:false ACK:false URG:false ECE:false CWR:false NS:false",
+    "window_size": 14600,
+    "checksum": 35616,
+    "urgent_pointer": 0,
+    "payload": "\t6,T'\ufffd4\"\r\t\ufffd\u0005ʴ\ufffd{'I\ufffd\ufffd\ufffd\u0010\ufffd\ufffd\ufffdvaB\ufffd\ufffd\u0015e\ufffd\ufffd}:p\ufffd\tF}\u001c\ufffd\u001f",
+    "payload_hex": "09362c5427b334220d099605cab4d27b2749b985c110cfe9a0766142b88215658df57d3a708b09467d1cb81f",
+    "timestamp": "2025-02-23T16:28:27.6110856-05:00"
+  }
+},
+{
+  "ipv4data": {
+    "type": "IPv4",
+    "source": "192.168.0.135",
+    "destination": "192.168.0.135",
+    "protocol": "TCP",
+    "flags": null,
+    "frag_offset": 0,
+    "ihl": 5,
+    "length": 84,
+    "options": null,
+    "padding": null,
+    "base_layer": {
+      "Contents": "RQAAVAAAAABABvhFwKgAh8CoAIc=",
+      "Payload": "AekAUEHdV9IAAAAAUAI5CFh1AABtOn+rEodGZCvuDdIYKg69b1cskYX8oZBp4ipf8X/VU4YJwyltQhANB05tHQ=="
+    },
+    "checksum": 63557,
+    "ttl": 64,
+    "version": 4,
+    "tos": 0,
+    "payload": ".é.PAÝWÒ....P.9.Xu..m:.«..Fd+î\rÒ.*.½oW,..ü¡.iâ*_ñ.ÕS..Ã)mB.\r.Nm.",
+    "timestamp": "2025-02-23T16:28:27.8062556-05:00"
+  },
+  "tcpdata": {
+    "source_ip": "192.168.0.135",
+    "destination_ip": "192.168.0.135",
+    "source_port": "489(nest-protocol)",
+    "destination_port": "80(http)",
+    "sequence_number": 1105024978,
+    "acknowledgment_number": 0,
+    "data_offset": 5,
+    "flags": "FIN:false SYN:true RST:false PSH:false ACK:false URG:false ECE:false CWR:false NS:false",
+    "window_size": 14600,
+    "checksum": 22645,
+    "urgent_pointer": 0,
+    "payload": "m:\ufffd\u0012\ufffdFd+\ufffd\r\ufffd\u0018*\u000e\ufffdoW,\ufffd\ufffd\ufffd\ufffd\ufffdi\ufffd*_\ufffd\ufffdS\ufffd\t\ufffd)mB\u0010\r\u0007Nm\u001d",
+    "payload_hex": "6d3a7fab128746642bee0dd2182a0ebd6f572c9185fca19069e22a5ff17fd5538609c3296d42100d074e6d1d",
+    "timestamp": "2025-02-23T16:28:27.8062556-05:00"
+  }
+},
+{
+  "ipv4data": {
+    "type": "IPv4",
+    "source": "192.168.0.135",
+    "destination": "192.168.0.135",
+    "protocol": "TCP",
+    "flags": null,
+    "frag_offset": 0,
+    "ihl": 5,
+    "length": 87,
+    "options": null,
+    "padding": null,
+    "base_layer": {
+      "Contents": "RQAAVwAAAABABvhCwKgAh8CoAIc=",
+      "Payload": "AekAUEHdV9IAAAAAUAI5COaLAABp3MrdOIHB88lRuYDVrhGpgjbplyvmVH2VjMpqJqgmj5hDnkEDQw/eG36BIyzWLA=="
+    },
+    "checksum": 63554,
+    "ttl": 64,
+    "version": 4,
+    "tos": 0,
+    "payload": ".é.PAÝWÒ....P.9.æ...iÜÊÝ8.ÁóÉQ¹.Õ®.©.6é.+æT}..Êj\u0026¨\u0026..C.A.C.Þ.~.#,Ö,",
+    "timestamp": "2025-02-23T16:28:28.0994973-05:00"
+  },
+  "tcpdata": {
+    "source_ip": "192.168.0.135",
+    "destination_ip": "192.168.0.135",
+    "source_port": "489(nest-protocol)",
+    "destination_port": "80(http)",
+    "sequence_number": 1105024978,
+    "acknowledgment_number": 0,
+    "data_offset": 5,
+    "flags": "FIN:false SYN:true RST:false PSH:false ACK:false URG:false ECE:false CWR:false NS:false",
+    "window_size": 14600,
+    "checksum": 59019,
+    "urgent_pointer": 0,
+    "payload": "i\ufffd\ufffd\ufffd8\ufffd\ufffd\ufffd\ufffdQ\ufffd\ufffdծ\u0011\ufffd\ufffd6\ufffd\ufffd+\ufffdT}\ufffd\ufffd\ufffdj\u0026\ufffd\u0026\ufffd\ufffdC\ufffdA\u0003C\u000f\ufffd\u001b~\ufffd#,\ufffd,",
+    "payload_hex": "69dccadd3881c1f3c951b980d5ae11a98236e9972be6547d958cca6a26a8268f98439e4103430fde1b7e81232cd62c",
+    "timestamp": "2025-02-23T16:28:28.0994973-05:00"
+  }
+},
+{
+  "ipv4data": {
+    "type": "IPv4",
+    "source": "192.168.0.135",
+    "destination": "192.168.0.135",
+    "protocol": "TCP",
+    "flags": null,
+    "frag_offset": 0,
+    "ihl": 5,
+    "length": 77,
+    "options": null,
+    "padding": null,
+    "base_layer": {
+      "Contents": "RQAATQAAAABABvhMwKgAh8CoAIc=",
+      "Payload": "AekAUEHdV9IAAAAAUAI5CG8KAAArWlUnkkBUzhBO5HSA+9+ntHNXzE5j3mFd0Q2bEyzAoXmb8JFK"
+    },
+    "checksum": 63564,
+    "ttl": 64,
+    "version": 4,
+    "tos": 0,
+    "payload": ".é.PAÝWÒ....P.9.o\n..+ZU'.@TÎ.Nät.ûß§´sWÌNcÞa]Ñ\r..,À¡y.ð.J",
+    "timestamp": "2025-02-23T16:28:28.3384849-05:00"
+  },
+  "tcpdata": {
+    "source_ip": "192.168.0.135",
+    "destination_ip": "192.168.0.135",
+    "source_port": "489(nest-protocol)",
+    "destination_port": "80(http)",
+    "sequence_number": 1105024978,
+    "acknowledgment_number": 0,
+    "data_offset": 5,
+    "flags": "FIN:false SYN:true RST:false PSH:false ACK:false URG:false ECE:false CWR:false NS:false",
+    "window_size": 14600,
+    "checksum": 28426,
+    "urgent_pointer": 0,
+    "payload": "+ZU'\ufffd@T\ufffd\u0010N\ufffdt\ufffd\ufffdߧ\ufffdsW\ufffdNc\ufffda]\ufffd\r\ufffd\u0013,\ufffd\ufffdy\ufffd\ufffd\ufffdJ",
+    "payload_hex": "2b5a5527924054ce104ee47480fbdfa7b47357cc4e63de615dd10d9b132cc0a1799bf0914a",
+    "timestamp": "2025-02-23T16:28:28.3384849-05:00"
+  }
+},
+{
+  "ipv4data": {
+    "type": "IPv4",
+    "source": "192.168.0.135",
+    "destination": "192.168.0.135",
+    "protocol": "TCP",
+    "flags": null,
+    "frag_offset": 0,
+    "ihl": 5,
+    "length": 84,
+    "options": null,
+    "padding": null,
+    "base_layer": {
+      "Contents": "RQAAVAAAAABABvhFwKgAh8CoAIc=",
+      "Payload": "AekAUEHdV9IAAAAAUAI5CPHAAACdK6Y39RKr2exBTeHH7/S6lu4XoK2FYzZDts3QgTd2IA9AjpqDrcvt9mTfgw=="
+    },
+    "checksum": 63557,
+    "ttl": 64,
+    "version": 4,
+    "tos": 0,
+    "payload": ".é.PAÝWÒ....P.9.ñÀ...+¦7õ.«ÙìAMáÇïôº.î....c6C¶ÍÐ.7v .@....Ëíödß.",
+    "timestamp": "2025-02-23T16:28:28.5793326-05:00"
+  },
+  "tcpdata": {
+    "source_ip": "192.168.0.135",
+    "destination_ip": "192.168.0.135",
+    "source_port": "489(nest-protocol)",
+    "destination_port": "80(http)",
+    "sequence_number": 1105024978,
+    "acknowledgment_number": 0,
+    "data_offset": 5,
+    "flags": "FIN:false SYN:true RST:false PSH:false ACK:false URG:false ECE:false CWR:false NS:false",
+    "window_size": 14600,
+    "checksum": 61888,
+    "urgent_pointer": 0,
+    "payload": "\ufffd+\ufffd7\ufffd\u0012\ufffd\ufffd\ufffdAM\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\u0017\ufffd\ufffd\ufffdc6C\ufffd\ufffdЁ7v \u000f@\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffdd߃",
+    "payload_hex": "9d2ba637f512abd9ec414de1c7eff4ba96ee17a0ad85633643b6cdd0813776200f408e9a83adcbedf664df83",
+    "timestamp": "2025-02-23T16:28:28.5793326-05:00"
+  }
+},
+{
+  "ipv4data": {
+    "type": "IPv4",
+    "source": "192.168.0.135",
+    "destination": "192.168.0.135",
+    "protocol": "TCP",
+    "flags": null,
+    "frag_offset": 0,
+    "ihl": 5,
+    "length": 82,
+    "options": null,
+    "padding": null,
+    "base_layer": {
+      "Contents": "RQAAUgAAAABABvhHwKgAh8CoAIc=",
+      "Payload": "AekAUEHdV9IAAAAAUAI5CAUxAAD2nc6yqVknY0nFK5mVfnO6g3GO/44dYnEhvNQUwAjFviWdju3gzhMqF3c="
+    },
+    "checksum": 63559,
+    "ttl": 64,
+    "version": 4,
+    "tos": 0,
+    "payload": ".é.PAÝWÒ....P.9..1..ö.Î²©Y'cIÅ+..~sº.q.ÿ..bq!¼Ô.À.Å¾%..íàÎ.*.w",
+    "timestamp": "2025-02-23T16:28:29.1315828-05:00"
+  },
+  "tcpdata": {
+    "source_ip": "192.168.0.135",
+    "destination_ip": "192.168.0.135",
+    "source_port": "489(nest-protocol)",
+    "destination_port": "80(http)",
+    "sequence_number": 1105024978,
+    "acknowledgment_number": 0,
+    "data_offset": 5,
+    "flags": "FIN:false SYN:true RST:false PSH:false ACK:false URG:false ECE:false CWR:false NS:false",
+    "window_size": 14600,
+    "checksum": 1329,
+    "urgent_pointer": 0,
+    "payload": "\ufffd\ufffdβ\ufffdY'cI\ufffd+\ufffd\ufffd~s\ufffd\ufffdq\ufffd\ufffd\ufffd\u001dbq!\ufffd\ufffd\u0014\ufffd\u0008ž%\ufffd\ufffd\ufffd\ufffd\ufffd\u0013*\u0017w",
+    "payload_hex": "f69dceb2a959276349c52b99957e73ba83718eff8e1d627121bcd414c008c5be259d8eede0ce132a1777",
+    "timestamp": "2025-02-23T16:28:29.1315828-05:00"
+  }
+},
+{
+  "ipv4data": {
+    "type": "IPv4",
+    "source": "192.168.0.135",
+    "destination": "192.168.0.135",
+    "protocol": "TCP",
+    "flags": null,
+    "frag_offset": 0,
+    "ihl": 5,
+    "length": 87,
+    "options": null,
+    "padding": null,
+    "base_layer": {
+      "Contents": "RQAAVwAAAABABvhCwKgAh8CoAIc=",
+      "Payload": "AekAUEHdV9IAAAAAUAI5CCyiAAC21lyQmQN+l7mB08EuPZNI10FDs/T6FVzgMAk5qkZI8cUlO4U4A4w1l3KiKHSJPQ=="
+    },
+    "checksum": 63554,
+    "ttl": 64,
+    "version": 4,
+    "tos": 0,
+    "payload": ".é.PAÝWÒ....P.9.,¢..¶Ö\\...~.¹.ÓÁ.=.H×AC³ôú.\\à0.9ªFHñÅ%;.8..5.r¢(t.=",
+    "timestamp": "2025-02-23T16:28:29.452142-05:00"
+  },
+  "tcpdata": {
+    "source_ip": "192.168.0.135",
+    "destination_ip": "192.168.0.135",
+    "source_port": "489(nest-protocol)",
+    "destination_port": "80(http)",
+    "sequence_number": 1105024978,
+    "acknowledgment_number": 0,
+    "data_offset": 5,
+    "flags": "FIN:false SYN:true RST:false PSH:false ACK:false URG:false ECE:false CWR:false NS:false",
+    "window_size": 14600,
+    "checksum": 11426,
+    "urgent_pointer": 0,
+    "payload": "\ufffd\ufffd\\\ufffd\ufffd\u0003~\ufffd\ufffd\ufffd\ufffd\ufffd.=\ufffdH\ufffdAC\ufffd\ufffd\ufffd\u0015\\\ufffd0\t9\ufffdFH\ufffd\ufffd%;\ufffd8\u0003\ufffd5\ufffdr\ufffd(t\ufffd=",
+    "payload_hex": "b6d65c9099037e97b981d3c12e3d9348d74143b3f4fa155ce0300939aa4648f1c5253b8538038c359772a22874893d",
+    "timestamp": "2025-02-23T16:28:29.452142-05:00"
+  }
+},
+{
+  "ipv4data": {
+    "type": "IPv4",
+    "source": "192.168.0.135",
+    "destination": "192.168.0.135",
+    "protocol": "TCP",
+    "flags": null,
+    "frag_offset": 0,
+    "ihl": 5,
+    "length": 84,
+    "options": null,
+    "padding": null,
+    "base_layer": {
+      "Contents": "RQAAVAAAAABABvhFwKgAh8CoAIc=",
+      "Payload": "AekAUEHdV9IAAAAAUAI5CNh0AAC3kBX8WZoD7ezmHf42CDCYFXEfVtQ4NCzGs2Lcndlv6iwmp7sykbW2NAB+rg=="
+    },
+    "checksum": 63557,
+    "ttl": 64,
+    "version": 4,
+    "tos": 0,
+    "payload": ".é.PAÝWÒ....P.9.Øt..·..üY..íìæ.þ6.0..q.VÔ84,Æ³bÜ.Ùoê,\u0026§»2.µ¶4.~®",
+    "timestamp": "2025-02-23T16:28:29.6381926-05:00"
+  },
+  "tcpdata": {
+    "source_ip": "192.168.0.135",
+    "destination_ip": "192.168.0.135",
+    "source_port": "489(nest-protocol)",
+    "destination_port": "80(http)",
+    "sequence_number": 1105024978,
+    "acknowledgment_number": 0,
+    "data_offset": 5,
+    "flags": "FIN:false SYN:true RST:false PSH:false ACK:false URG:false ECE:false CWR:false NS:false",
+    "window_size": 14600,
+    "checksum": 55412,
+    "urgent_pointer": 0,
+    "payload": "\ufffd\ufffd\u0015\ufffdY\ufffd\u0003\ufffd\ufffd\ufffd\u001d\ufffd6\u00080\ufffd\u0015q\u001fV\ufffd84,Ƴbܝ\ufffdo\ufffd,\u0026\ufffd\ufffd2\ufffd\ufffd\ufffd4\u0000~\ufffd",
+    "payload_hex": "b79015fc599a03edece61dfe3608309815711f56d438342cc6b362dc9dd96fea2c26a7bb3291b5b634007eae",
+    "timestamp": "2025-02-23T16:28:29.6381926-05:00"
+  }
+},
+{
+  "ipv4data": {
+    "type": "IPv4",
+    "source": "192.168.0.135",
+    "destination": "192.168.0.135",
+    "protocol": "TCP",
+    "flags": null,
+    "frag_offset": 0,
+    "ihl": 5,
+    "length": 84,
+    "options": null,
+    "padding": null,
+    "base_layer": {
+      "Contents": "RQAAVAAAAABABvhFwKgAh8CoAIc=",
+      "Payload": "AekAUEHdV9IAAAAAUAI5CCt5AADeLsxyN/yCvg+E9NAS3G8fn9B8oHayGzZmnRJjaJgvOtS6DF46+aIBHtClMA=="
+    },
+    "checksum": 63557,
+    "ttl": 64,
+    "version": 4,
+    "tos": 0,
+    "payload": ".é.PAÝWÒ....P.9.+y..Þ.Ìr7ü.¾..ôÐ.Üo..Ð|.v².6f..ch./:Ôº.^:ù¢..Ð¥0",
+    "timestamp": "2025-02-23T16:28:29.8564873-05:00"
+  },
+  "tcpdata": {
+    "source_ip": "192.168.0.135",
+    "destination_ip": "192.168.0.135",
+    "source_port": "489(nest-protocol)",
+    "destination_port": "80(http)",
+    "sequence_number": 1105024978,
+    "acknowledgment_number": 0,
+    "data_offset": 5,
+    "flags": "FIN:false SYN:true RST:false PSH:false ACK:false URG:false ECE:false CWR:false NS:false",
+    "window_size": 14600,
+    "checksum": 11129,
+    "urgent_pointer": 0,
+    "payload": "\ufffd.\ufffdr7\ufffd\ufffd\ufffd\u000f\ufffd\ufffd\ufffd\u0012\ufffdo\u001f\ufffd\ufffd|\ufffdv\ufffd\u001b6f\ufffd\u0012ch\ufffd/:Ժ\u000c^:\ufffd\ufffd\u0001\u001eХ0",
+    "payload_hex": "de2ecc7237fc82be0f84f4d012dc6f1f9fd07ca076b21b36669d126368982f3ad4ba0c5e3af9a2011ed0a530",
+    "timestamp": "2025-02-23T16:28:29.8564873-05:00"
+  }
+},
+{
+  "ipv4data": {
+    "type": "IPv4",
+    "source": "192.168.0.135",
+    "destination": "192.168.0.135",
+    "protocol": "TCP",
+    "flags": null,
+    "frag_offset": 0,
+    "ihl": 5,
+    "length": 84,
+    "options": null,
+    "padding": null,
+    "base_layer": {
+      "Contents": "RQAAVAAAAABABvhFwKgAh8CoAIc=",
+      "Payload": "AekAUEHdV9IAAAAAUAI5CH+kAABxXUCjuW7Wyf5mGTAGox0tDAteO52fYleni0zfUFO6kbfWbXvMYWJL3Q/AhQ=="
+    },
+    "checksum": 63557,
+    "ttl": 64,
+    "version": 4,
+    "tos": 0,
+    "payload": ".é.PAÝWÒ....P.9..¤..q]@£¹nÖÉþf.0.£.-..^;..bW§.LßPSº.·Öm{ÌabKÝ.À.",
+    "timestamp": "2025-02-23T16:28:30.2029724-05:00"
+  },
+  "tcpdata": {
+    "source_ip": "192.168.0.135",
+    "destination_ip": "192.168.0.135",
+    "source_port": "489(nest-protocol)",
+    "destination_port": "80(http)",
+    "sequence_number": 1105024978,
+    "acknowledgment_number": 0,
+    "data_offset": 5,
+    "flags": "FIN:false SYN:true RST:false PSH:false ACK:false URG:false ECE:false CWR:false NS:false",
+    "window_size": 14600,
+    "checksum": 32676,
+    "urgent_pointer": 0,
+    "payload": "q]@\ufffd\ufffdn\ufffd\ufffd\ufffdf\u00190\u0006\ufffd\u001d-\u000c\u000b^;\ufffd\ufffdbW\ufffd\ufffdL\ufffdPS\ufffd\ufffd\ufffd\ufffdm{\ufffdabK\ufffd\u000f\ufffd\ufffd",
+    "payload_hex": "715d40a3b96ed6c9fe66193006a31d2d0c0b5e3b9d9f6257a78b4cdf5053ba91b7d66d7bcc61624bdd0fc085",
+    "timestamp": "2025-02-23T16:28:30.2029724-05:00"
+  }
+},
+{
+  "ipv4data": {
+    "type": "IPv4",
+    "source": "192.168.0.135",
+    "destination": "192.168.0.135",
+    "protocol": "TCP",
+    "flags": null,
+    "frag_offset": 0,
+    "ihl": 5,
+    "length": 87,
+    "options": null,
+    "padding": null,
+    "base_layer": {
+      "Contents": "RQAAVwAAAABABvhCwKgAh8CoAIc=",
+      "Payload": "AekAUEHdV9IAAAAAUAI5CD/EAADGlKrgl3JVeu8LudYuRgzdWVCYsMRctvrbFP9uYL4xpTq0a9VmGyDn2axetKoJ7A=="
+    },
+    "checksum": 63554,
+    "ttl": 64,
+    "version": 4,
+    "tos": 0,
+    "payload": ".é.PAÝWÒ....P.9.?Ä..Æ.ªà.rUzï.¹Ö.F.ÝYP.°Ä\\¶úÛ.ÿn`¾1¥:´kÕf. çÙ¬^´ª.ì",
+    "timestamp": "2025-02-23T16:28:30.3992416-05:00"
+  },
+  "tcpdata": {
+    "source_ip": "192.168.0.135",
+    "destination_ip": "192.168.0.135",
+    "source_port": "489(nest-protocol)",
+    "destination_port": "80(http)",
+    "sequence_number": 1105024978,
+    "acknowledgment_number": 0,
+    "data_offset": 5,
+    "flags": "FIN:false SYN:true RST:false PSH:false ACK:false URG:false ECE:false CWR:false NS:false",
+    "window_size": 14600,
+    "checksum": 16324,
+    "urgent_pointer": 0,
+    "payload": "Ɣ\ufffd\ufffd\ufffdrUz\ufffd\u000b\ufffd\ufffd.F\u000c\ufffdYP\ufffd\ufffd\ufffd\\\ufffd\ufffd\ufffd\u0014\ufffdn`\ufffd1\ufffd:\ufffdk\ufffdf\u001b \ufffd٬^\ufffd\ufffd\t\ufffd",
+    "payload_hex": "c694aae09772557aef0bb9d62e460cdd595098b0c45cb6fadb14ff6e60be31a53ab46bd5661b20e7d9ac5eb4aa09ec",
+    "timestamp": "2025-02-23T16:28:30.3992416-05:00"
+  }
+}
