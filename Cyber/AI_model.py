@@ -123,4 +123,9 @@ detector = AnomalyDetector()
 detector.load_and_train_model(train_df)
 test_results = detector.predict(test_df)
 
+
+# 6. Save the Model as a .pkl file
+joblib.dump(detector, "network_packet_classifier.pkl")
+
+
 print(test_results['anomaly_score'].value_counts())
