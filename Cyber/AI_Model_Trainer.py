@@ -103,12 +103,13 @@ class AnomalyDetector:
         self.model.fit(train_df.drop(columns=["Time"], errors='ignore'))
     
     #! make sure it becomes dataframe as it comes in
-    def predict(self, test_df):
-        test_df = test_df.copy()
-        if "Time" in test_df.columns:
-            test_df["Time"] = (test_df["Time"] - test_df["Time"].min()).dt.total_seconds()
-        test_df["anomaly_score"] = self.model.predict(test_df.drop(columns=["Time"], errors='ignore'))
-        return test_df[['Time', 'anomaly_score']]
+    # FIXED: takes in json file path and processes it the same way as training df
+    def predict(self, json_path):
+        json_df = DataPreprocessor(DataLoader.transform_json_to_df(json_path)).preprocess_df()
+        if "Time" in json_df.columns:
+            json_df["Time"] = (json_df["Time"] - json_df["Time"].min()).dt.total_seconds()
+        json_df["anomaly_score"] = self.model.predict(json_df.drop(columns=["Time"], errors='ignore'))
+        return test_df['anomaly_score'].value_counts()
 
     def split_training_testing_df(self, df):
         split_time = df["Time"].quantile(0.8)
@@ -118,21 +119,22 @@ class AnomalyDetector:
 
 # Load and preprocess data
 if __name__ == '__main__':
+    detector = AnomalyDetector()
+    
     good_df = DataPreprocessor(DataLoader.transform_json_to_df('datasets/goodPackets.json')).preprocess_df()
     buffer_df = DataPreprocessor(DataLoader.transform_json_to_df('datasets/BufferOverflowPackets.json')).preprocess_df()
     syn_flood_df = DataPreprocessor(DataLoader.transform_json_to_df('datasets/SYNFloodPacket.json')).preprocess_df()
 
     # Train-test split
-    good_train_df, good_test_df = split_training_testing_df(good_df)
-    buffer_train_df, buffer_test_df = split_training_testing_df(buffer_df)
-    syn_flood_train_df, syn_flood_test_df = split_training_testing_df(syn_flood_df)
+    good_train_df, good_test_df = detector.split_training_testing_df(good_df)
+    buffer_train_df, buffer_test_df = detector.split_training_testing_df(buffer_df)
+    syn_flood_train_df, syn_flood_test_df = detector.split_training_testing_df(syn_flood_df)
 
     # Combine datasets
     train_df = pd.concat([good_train_df, buffer_train_df, syn_flood_train_df], ignore_index=True)
     test_df = pd.concat([good_test_df, buffer_test_df, syn_flood_test_df], ignore_index=True)
 
     # Train and predict using the model
-    detector = AnomalyDetector()
     detector.load_and_train_model(train_df)
     test_results = detector.predict(test_df)
 
