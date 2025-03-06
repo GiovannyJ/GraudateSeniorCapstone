@@ -26,25 +26,35 @@
                         tableBody.empty(); // Clear existing rows
 
                         // Loop through the data and add rows to the table
+                        // response.data.forEach(function(item) {
+                        //     tableBody.append(
+                        //         `<tr>
+                        //             <td>${item.ipv4data.type}</td>
+                        //             <td>${item.ipv4data.source}</td>
+                        //             <td>${item.ipv4data.destination}</td>
+                        //             <td>${item.ipv4data.protocol}</td>
+                        //             <td>${item.ipv4data.flags || 'None'}</td>
+                        //             <td>${item.ipv4data.frag_offset}</td>
+                        //             <td>${item.ipv4data.ihl}</td>
+                        //             <td>${item.ipv4data.length}</td>
+                        //             <td>${item.ipv4data.checksum}</td>
+                        //             <td>${item.ipv4data.ttl}</td>
+                        //             <td>${item.ipv4data.version}</td>
+                        //             <td>${item.ipv4data.tos}</td>
+                        //             <td><pre>${item.ipv4data.payload}</pre></td>
+                        //             <td><pre>${item.ipv4data.base_layer?.Contents || ''}</pre></td>
+                        //             <td><pre>${item.ipv4data.base_layer?.Payload || ''}</pre></td>
+                        //             <td><pre>${item.ipv4data.timestamp}</pre></td>
+                        //             <td><pre>${item.anomaly_score}</pre></td>
+                        //         </tr>`
+                        //     );
+                        // });
                         response.data.forEach(function(item) {
                             tableBody.append(
                                 `<tr>
                                     <td>${item.ipv4data.type}</td>
-                                    <td>${item.ipv4data.source}</td>
-                                    <td>${item.ipv4data.destination}</td>
-                                    <td>${item.ipv4data.protocol}</td>
-                                    <td>${item.ipv4data.flags || 'None'}</td>
-                                    <td>${item.ipv4data.frag_offset}</td>
-                                    <td>${item.ipv4data.ihl}</td>
-                                    <td>${item.ipv4data.length}</td>
-                                    <td>${item.ipv4data.checksum}</td>
-                                    <td>${item.ipv4data.ttl}</td>
-                                    <td>${item.ipv4data.version}</td>
-                                    <td>${item.ipv4data.tos}</td>
-                                    <td><pre>${item.ipv4data.payload}</pre></td>
-                                    <td><pre>${item.ipv4data.base_layer?.Contents || ''}</pre></td>
-                                    <td><pre>${item.ipv4data.base_layer?.Payload || ''}</pre></td>
-                                    <td><pre>${item.ipv4data.timestamp}</pre></td>
+                                    <td>${item.tcpdata.source_ip}</td>
+                                    <td><pre>${item.anomaly_score}</pre></td>
                                 </tr>`
                             );
                         });

@@ -88,23 +88,29 @@ func main() {
 	// 	time.Sleep(time.Duration(rand.Intn(500)+100) * time.Millisecond)
 	// }
 
-	for i := 0; i < 1000; i++ {
-		a.GenerateSYNFlood(handle, targetIP, targetIP, 489, 800)
-		h.Okay("SYN Packet Sent")
+	// for i := 0; i < 1000; i++ {
+	// 	a.GenerateSYNFlood(handle, targetIP, targetIP, 489, 800)
+	// 	h.Okay("SYN Packet Sent")
 
 		
-		// a.GenerateBufferOverFlowPacket(handle, targetIP, targetIP, 489, 80)
-		// h.Okay("Buffer Overflow Packet Sent")
+	// 	// a.GenerateBufferOverFlowPacket(handle, targetIP, targetIP, 489, 80)
+	// 	// h.Okay("Buffer Overflow Packet Sent")
 
 	
-		// payload := generateHTTPPayload()
-		// encryptedPayload := simulateEncryptedPayload(payload)
-		// h.SendTCPPacket(handle, targetIP, targetIP, 489, 80, encryptedPayload)
-		// h.Okay("Normal Packet Sent")
+	// 	// payload := generateHTTPPayload()
+	// 	// encryptedPayload := simulateEncryptedPayload(payload)
+	// 	// h.SendTCPPacket(handle, targetIP, targetIP, 489, 80, encryptedPayload)
+	// 	// h.Okay("Normal Packet Sent")
 
 		
-		time.Sleep(time.Duration(rand.Intn(500)+100) * time.Millisecond)
-	}
+	// 	time.Sleep(time.Duration(rand.Intn(500)+100) * time.Millisecond)
+	// }
+	// payload := generateHTTPPayload()
+	// encryptedPayload := simulateEncryptedPayload(payload)
+	// h.SendTCPPacket(handle, targetIP, targetIP, 489, 80, encryptedPayload)
+	// h.Okay("Normal Packet Sent")
+	a.GenerateBufferOverFlowPacket(handle, targetIP, targetIP, 489, 80)
+	h.Okay("Buffer Overflow Packet Sent")
 }
 
 func generateHTTPPayload() []byte {

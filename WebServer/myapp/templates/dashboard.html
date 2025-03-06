@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IPv4 Data</title>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom styles */
+        .normal { background-color: #d4edda; } /* Green for normal */
+        .anomaly { background-color: #f8d7da; } /* Red for anomaly */
+        .hidden { display: none; } /* Hide verbose columns by default */
+        pre { white-space: pre-wrap; word-wrap: break-word; } /* For formatting payload */
+    </style>
+    <!-- Include jQuery for AJAX -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Include Bootstrap JS (optional, for advanced features) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        let verboseMode = false; // Track verbose mode state
+
+        // Function to fetch data via AJAX
+        function fetchData() {
+            $.ajax({
+                url: window.location.href, // Use the current URL
+                type: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest' // Indicate this is an AJAX request
+                },
+                success: function(response) {
+                    if (response.data) {
+                        let tableBody = $('#data-table tbody');
+                        tableBody.empty(); // Clear existing rows
+
+                        // Loop through the data and add rows to the table
+                        response.data.forEach(function(item) {
+                            let rowClass = item.anomaly_score === -1 ? 'normal' : 'anomaly';
+                            tableBody.append(
+                                `<tr class="${rowClass}">
+                                    <td>${item.ipv4data.type}</td>
+                                    <td>${item.ipv4data.source}</td>
+                                    <td>${item.ipv4data.destination}</td>
+                                    <td>${item.ipv4data.protocol}</td>
+                                    <td>${item.ipv4data.flags || 'None'}</td>
+                                    <td>${item.ipv4data.frag_offset}</td>
+                                    <td>${item.ipv4data.ihl}</td>
+                                    <td>${item.ipv4data.length}</td>
+                                    <td>${item.ipv4data.checksum}</td>
+                                    <td>${item.ipv4data.ttl}</td>
+                                    <td>${item.ipv4data.version}</td>
+                                    <td>${item.ipv4data.tos}</td>
+                                    <td><pre>${item.ipv4data.payload}</pre></td>
+                                    <td><pre>${item.ipv4data.base_layer?.Contents || ''}</pre></td>
+                                    <td><pre>${item.ipv4data.base_layer?.Payload || ''}</pre></td>
+                                    <td><pre>${item.ipv4data.timestamp}</pre></td>
+                                    <td class="verbose hidden">${item.tcpdata.source_ip}</td>
+                                    <td class="verbose hidden">${item.tcpdata.destination_ip}</td>
+                                    <td class="verbose hidden">${item.tcpdata.source_port}</td>
+                                    <td class="verbose hidden">${item.tcpdata.destination_port}</td>
+                                    <td class="verbose hidden">${item.tcpdata.sequence_number}</td>
+                                    <td class="verbose hidden">${item.tcpdata.acknowledgment_number}</td>
+                                    <td class="verbose hidden">${item.tcpdata.data_offset}</td>
+                                    <td class="verbose hidden">${item.tcpdata.flags}</td>
+                                    <td class="verbose hidden">${item.tcpdata.window_size}</td>
+                                    <td class="verbose hidden">${item.tcpdata.checksum}</td>
+                                    <td class="verbose hidden">${item.tcpdata.urgent_pointer}</td>
+                                    <td class="verbose hidden"><pre>${item.tcpdata.payload}</pre></td>
+                                    <td class="verbose hidden"><pre>${item.tcpdata.payload_hex}</pre></td>
+                                    <td class="verbose hidden"><pre>${item.tcpdata.timestamp}</pre></td>
+                                    <td>${item.anomaly_score}</td>
+                                </tr>`
+                            );
+                        });
+
+                        // Toggle verbose columns based on mode
+                        if (!verboseMode) {
+                            $('.verbose').addClass('hidden');
+                        }
+                    } else {
+                        // If no data is available, display a message
+                        $('#data-table tbody').html('<tr><td colspan="30">No data available.</td></tr>');
+                    }
+                },
+                complete: function() {
+                    // Poll every 2 seconds (adjust as needed)
+                    setTimeout(fetchData, 1000);
+                }
+            });
+        }
+
+        // Function to toggle verbose mode
+        function toggleVerboseMode() {
+            verboseMode = !verboseMode;
+            $('.verbose').toggleClass('hidden');
+            $('#toggle-verbose-btn').text(verboseMode ? 'Hide Details' : 'Show Details');
+        }
+
+        // Start fetching data when the page loads
+        $(document).ready(function() {
+            fetchData();
+            $('#toggle-verbose-btn').click(toggleVerboseMode);
+        });
+    </script>
+</head>
+<body>
+    <div class="container-fluid">
+        <h1 class="mt-4">IPv4 Data</h1>
+        <a href="/" class="btn btn-primary mb-3">Home</a> <!-- Link to the homepage -->
+        <button id="toggle-verbose-btn" class="btn btn-secondary mb-3">Show Details</button> <!-- Toggle verbose mode -->
+
+        <div class="table-responsive">
+            <table id="data-table" class="table table-bordered table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Type</th>
+                        <th>Source</th>
+                        <th>Destination</th>
+                        <th>Protocol</th>
+                        <th>Flags</th>
+                        <th>Frag Offset</th>
+                        <th>IHL</th>
+                        <th>Length</th>
+                        <th>Checksum</th>
+                        <th>TTL</th>
+                        <th>Version</th>
+                        <th>TOS</th>
+                        <th>Payload</th>
+                        <th>Base Layer Contents</th>
+                        <th>Base Layer Payload</th>
+                        <th>IPv4 Timestamp</th>
+                        <th class="verbose hidden">TCP Source IP</th>
+                        <th class="verbose hidden">TCP Destination IP</th>
+                        <th class="verbose hidden">TCP Source Port</th>
+                        <th class="verbose hidden">TCP Destination Port</th>
+                        <th class="verbose hidden">TCP Seq Number</th>
+                        <th class="verbose hidden">TCP Ack Number</th>
+                        <th class="verbose hidden">TCP Data Offset</th>
+                        <th class="verbose hidden">TCP Flags</th>
+                        <th class="verbose hidden">TCP Window Size</th>
+                        <th class="verbose hidden">TCP Checksum</th>
+                        <th class="verbose hidden">TCP Urgent Pointer</th>
+                        <th class="verbose hidden">TCP Payload</th>
+                        <th class="verbose hidden">TCP Payload Hex</th>
+                        <th class="verbose hidden">TCP Timestamp</th>
+                        <th>Anomaly Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be dynamically populated by JavaScript -->
+                    <tr>
+                        <td colspan="30">Loading data...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
