@@ -113,6 +113,7 @@ This component runs a Django-based **web API** and serves a **live web page** fo
 
 ### **1️⃣ Running the Web Server**  
 ```bash
+pip install -r requirements.txt
 cd WebServer
 python manage.py runserver 8080
 ```

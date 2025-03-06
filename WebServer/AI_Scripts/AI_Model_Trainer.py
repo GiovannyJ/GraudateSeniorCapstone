@@ -5,8 +5,6 @@ import numpy as np
 from ipaddress import ip_address
 import joblib
 from sklearn.ensemble import IsolationForest
-from datetime import datetime
-
 
 
 class DataLoader:
@@ -104,66 +102,18 @@ class AnomalyDetector:
         if "Time" in train_df.columns:
             train_df["Time"] = (train_df["Time"] - train_df["Time"].min()).dt.total_seconds()
         self.model.fit(train_df.drop(columns=["Time"], errors='ignore'))
+    def predict_model(self, df):
+        df["anomaly_score"] = self.model.predict(df.drop(columns=["Time"], errors='ignore'))
+        return test_df['anomaly_score'].value_counts()
     
     #! make sure it becomes dataframe as it comes in
     # FIXED: takes in json file path and processes it the same way as training df
-    def predict_df(self, df):
-        # json_dl = DataLoader.transform_json_to_df(json_path)
-        # json_df = DataPreprocessor(json_dl)
-        # json_df.preprocess_df()
-        # if "Time" in json_df.columns:
-        #     json_df["Time"] = (json_df["Time"] - json_df["Time"].min()).dt.total_seconds()
-        # json_df["anomaly_score"] = self.model.predict(json_df.drop(columns=["Time"], errors='ignore'))
-        # return test_df['anomaly_score'].value_counts()
-        
-        df = df.copy()
-        if "Time" in df.columns:
-            df["Time"] = (df["Time"] - df["Time"].min()).dt.total_seconds()
-        # df["anomaly_score"] = 
-        return self.model.predict(df.drop(columns=["Time"], errors='ignore'))
-        # return df["anomaly_score"]
-
-
-    def predict(self, input_data):
-        """
-        Predict anomalies from either a JSON file path or a JSON text object.
-
-        Args:
-            input_data (str or dict): Either a file path to a JSON file or a JSON text object.
-
-        Returns:
-            pd.Series: Anomaly scores for the input data.
-        """
-        # Handle JSON file path
-        if isinstance(input_data, str):
-            try:
-                with open(input_data, 'r', encoding='utf-8') as file:
-                    json_data = json.load(file)
-            except Exception as e:
-                print(f"Error loading JSON file: {e}")
-                return None
-        # Handle JSON text object
-        elif isinstance(input_data, dict):
-            json_data = input_data
-        else:
-            raise ValueError("Input must be either a JSON file path (str) or a JSON text object (dict).")
-
-        # Convert JSON to DataFrame
-        df = pd.json_normalize(json_data)
-        print("[+] Data loaded and normalized")
-
-        # Preprocess the DataFrame
-        preprocessor = DataPreprocessor(df)
-        df = preprocessor.preprocess_df()
-
-        # Convert 'Time' to seconds if present
-        if "Time" in df.columns:
-            df["Time"] = (df["Time"] - df["Time"].min()).dt.total_seconds()
-
-        # Predict anomalies
-        # anomaly_scores = 
-        return self.model.predict(df.drop(columns=["Time"], errors='ignore'))
-        # return pd.Series(anomaly_scores, name="anomaly_score")
+    def predict(self, json_path):
+        json_df = DataPreprocessor(DataLoader.transform_json_to_df(json_path)).preprocess_df()
+        if "Time" in json_df.columns:
+            json_df["Time"] = (json_df["Time"] - json_df["Time"].min()).dt.total_seconds()
+        json_df["anomaly_score"] = self.model.predict(json_df.drop(columns=["Time"], errors='ignore'))
+        return test_df['anomaly_score'].value_counts()
 
     def split_training_testing_df(self, df):
         split_time = df["Time"].quantile(0.8)
@@ -186,18 +136,14 @@ if __name__ == '__main__':
 
     # Combine datasets
     train_df = pd.concat([good_train_df, buffer_train_df, syn_flood_train_df], ignore_index=True)
+    train_df = train_df.dropna()
     test_df = pd.concat([good_test_df, buffer_test_df, syn_flood_test_df], ignore_index=True)
 
     # Train and predict using the model
     detector.load_and_train_model(train_df)
-    test_results = detector.predict_df(test_df)
+    test_results = detector.predict_model(test_df)
 
 
     # 6. Save the Model as a .pkl file
-    now = datetime.now()
-    filename = f"../models/network_packet_classifier_{now.strftime('%d_%m_%Y_%H_%M_%S')}.pkl"
-    joblib.dump(detector, filename)
-
-
-    # print(test_results['anomaly_score'].value_counts())
+    joblib.dump(detector, "network_packet_classifier.pkl")
     print(test_results)
