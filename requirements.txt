@@ -1,8 +1,9 @@
-django
 pandas
 numpy
 ipaddress
-scikit-learn
 joblib
-datetime
+scikit-learn
+scipy
+matplotlib
+seaborn
 

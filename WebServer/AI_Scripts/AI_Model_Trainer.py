@@ -5,6 +5,12 @@ import numpy as np
 from ipaddress import ip_address
 import joblib
 from sklearn.ensemble import IsolationForest
+from scipy.stats import entropy
+from sklearn.metrics import classification_report, confusion_matrix
+import matplotlib.pyplot as plt
+import seaborn as sns
+from pathlib import Path
+import os
 
 
 class DataLoader:
@@ -98,22 +104,26 @@ class AnomalyDetector:
         self.model = IsolationForest(contamination=contamination, random_state=42)
 
     def load_and_train_model(self, train_df):
-        train_df = train_df.copy()
-        if "Time" in train_df.columns:
-            train_df["Time"] = (train_df["Time"] - train_df["Time"].min()).dt.total_seconds()
         self.model.fit(train_df.drop(columns=["Time"], errors='ignore'))
-    def predict_model(self, df):
-        df["anomaly_score"] = self.model.predict(df.drop(columns=["Time"], errors='ignore'))
-        return test_df['anomaly_score'].value_counts()
     
-    #! make sure it becomes dataframe as it comes in
-    # FIXED: takes in json file path and processes it the same way as training df
-    def predict(self, json_path):
-        json_df = DataPreprocessor(DataLoader.transform_json_to_df(json_path)).preprocess_df()
-        if "Time" in json_df.columns:
-            json_df["Time"] = (json_df["Time"] - json_df["Time"].min()).dt.total_seconds()
-        json_df["anomaly_score"] = self.model.predict(json_df.drop(columns=["Time"], errors='ignore'))
-        return test_df['anomaly_score'].value_counts()
+    def predict(self, json_input):
+        if isinstance(json_input, pd.DataFrame):
+            json_df = json_input
+        elif isinstance(json_input, str):
+            if os.path.exists(json_input):  # Check if it's a file path
+                json_df = DataPreprocessor(DataLoader.transform_json_to_df(json_input)).preprocess_df()
+            else:
+                try:
+                    json_obj = json.loads(json_input)  # Try parsing as JSON string
+                    json_df = pd.json_normalize(json_obj)
+                except json.JSONDecodeError:
+                    raise ValueError("Invalid JSON string or file path provided.")
+        else:
+            raise ValueError("Unsupported input type. Must be a DataFrame, JSON file path, or JSON text object.")
+        
+        predictions = self.model.predict(json_df.drop(columns=["Time"], errors='ignore'))
+        return predictions
+    
 
     def split_training_testing_df(self, df):
         split_time = df["Time"].quantile(0.8)
@@ -125,25 +135,21 @@ class AnomalyDetector:
 if __name__ == '__main__':
     detector = AnomalyDetector()
     
-    good_df = DataPreprocessor(DataLoader.transform_json_to_df('datasets/goodPackets.json')).preprocess_df()
-    buffer_df = DataPreprocessor(DataLoader.transform_json_to_df('datasets/BufferOverflowPackets.json')).preprocess_df()
-    syn_flood_df = DataPreprocessor(DataLoader.transform_json_to_df('datasets/SYNFloodPacket.json')).preprocess_df()
-
-    # Train-test split
-    good_train_df, good_test_df = detector.split_training_testing_df(good_df)
-    buffer_train_df, buffer_test_df = detector.split_training_testing_df(buffer_df)
-    syn_flood_train_df, syn_flood_test_df = detector.split_training_testing_df(syn_flood_df)
-
-    # Combine datasets
-    train_df = pd.concat([good_train_df, buffer_train_df, syn_flood_train_df], ignore_index=True)
-    train_df = train_df.dropna()
-    test_df = pd.concat([good_test_df, buffer_test_df, syn_flood_test_df], ignore_index=True)
-
+    BASE_DIR = Path(__file__).resolve().parent  # Gets the directory of the script
+    datasets_dir = BASE_DIR / "datasets"    
+    train_file_path = datasets_dir / "good8k_syn1k_buff1k.json"
+    test_file_path = datasets_dir / "All_Malware_Even.json"
+    
+    train_df = DataPreprocessor(DataLoader.transform_json_to_df(train_file_path)).preprocess_df()
+    test_df = DataPreprocessor(DataLoader.transform_json_to_df(test_file_path)).preprocess_df()
     # Train and predict using the model
+    train_df = train_df.dropna()
+    test_df = test_df.dropna()
+
     detector.load_and_train_model(train_df)
-    test_results = detector.predict_model(test_df)
-
-
+    test_results = detector.predict(test_df)
     # 6. Save the Model as a .pkl file
     joblib.dump(detector, "network_packet_classifier.pkl")
-    print(test_results)
+
+    
+    #print(test_results)

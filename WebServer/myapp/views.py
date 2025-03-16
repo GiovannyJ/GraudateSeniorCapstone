@@ -13,8 +13,6 @@ import pandas as pd
 from AI_Scripts.AI_Model_Trainer import  AnomalyDetector, DataLoader, DataPreprocessor
 detector = AnomalyDetector()
 
-
-
 #! WITH TRAINED MODEL
 MODEL_PATH = settings.BASE_DIR /  "models" 
 
@@ -26,8 +24,9 @@ MODEL_PATH = settings.BASE_DIR /  "models"
 
 
 #! WITH UNTRAINED MODEL
-datasets_dir = settings.BASE_DIR / "AI_Scripts" / "datasets"
-
+AI_Scripts_dir = settings.BASE_DIR / "AI_Scripts"
+trained_model = AI_Scripts_dir / "network_packet_classifier.pkl"
+'''
 # Construct paths to the datasets
 good_packets_path = datasets_dir / "goodPackets.json"
 buffer_overflow_path = datasets_dir / "BufferOverflowPackets.json"
@@ -47,6 +46,8 @@ test_df = pd.concat([good_test_df, buffer_test_df, syn_flood_test_df], ignore_in
 detector.load_and_train_model(train_df)
 test_results = detector.predict_df(test_df)
 
+'''
+
 
 results = ""
 live_data = []
@@ -61,11 +62,12 @@ def ipv4_data(request):
             data = json.loads(request.body.decode("utf-8"))
             #! THIS IS WHERE THE AI CODE WILL LIVE AND MUTATE THE DATA
             if data:
-                results = detector.predict(data)
-                data["anomaly_score"] = int(results[0])
+                results = trained_model.predict(data)
+                #data["anomaly_score"] = int(results[0])
+                live_data.append(results)
                 print(data)
 
-            live_data.append(data)
+            #live_data.append(data)
             
             return JsonResponse({"message": "IPv4 data received successfully!"}, status=200)
         
