@@ -5,10 +5,9 @@ import numpy as np
 from ipaddress import ip_address
 import joblib
 from sklearn.ensemble import IsolationForest
-from scipy.stats import entropy
+from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import classification_report, confusion_matrix
-import matplotlib.pyplot as plt
-import seaborn as sns
+from scipy.stats import entropy
 from pathlib import Path
 import os
 
@@ -64,20 +63,48 @@ class DataPreprocessor:
             'WindowSize', 'TCPChecksum', 'TCPPayload', 'PayloadHex'
         ]
         self.df = self.df[[col for col in new_order if col in self.df.columns]]
-
         self.df['Time'] = pd.to_datetime(self.df['Time'])
+        # Fill missing values with appropriate defaults
+        self.df.fillna({
+            'Source': '0.0.0.0',
+            'Destination': '0.0.0.0',
+            'SourcePort': 0,
+            'DestinationPort': 0,
+            'Length': self.df['Length'].median(),  
+            'FragOffset': 0,
+            'IHL': self.df['IHL'].median(),
+            'IPVChecksum': 0,
+            'TTL': self.df['TTL'].median(),
+            'TOS': 0,
+            'SeqNum': 0,
+            'AckNum': 0,
+            'DataOffset': self.df['DataOffset'].median(),
+            'WindowSize': self.df['WindowSize'].median(),
+            'TCPChecksum': 0
+        }, inplace=True)
         self.df['Source'] = self.df['Source'].apply(self.convert_IP_to_int)
         self.df['Destination'] = self.df['Destination'].apply(self.convert_IP_to_int)
         self.df['SourcePort'] = self.df['SourcePort'].apply(self.extract_port_number)
         self.df['DestinationPort'] = self.df['DestinationPort'].apply(self.extract_port_number)
-
-        cols_to_prep_later = ['Contents', 'Payload', 'IPPayload', 'TCPPayload', 'PayloadHex']
-        self.df.drop(cols_to_prep_later, axis=1, inplace=True, errors='ignore')
+        
+        self.df['TCPPayload_Length'] = self.df['TCPPayload'].apply(lambda x: len(str(x)) if pd.notna(x) else 0)
+        self.df['Payload_Length'] = self.df['Payload'].apply(lambda x: len(str(x)) if pd.notna(x) else 0)
+        self.df['Payload_Entropy'] = self.df['Payload'].apply(self.calculate_entropy)
+        self.df = self.add_rolling_stats(self.df, cols=['Length', 'Payload_Length', 'TCPPayload_Length'], window=5)
 
         self.df = self.add_rolling_stats(self.df, cols=['Length'], window=5)
-        self.df['Burstiness'] = self.df['Rolling_Std_Length'] / self.df['Rolling_Mean_Length'].replace(0, np.nan)
-
+        cols_to_prep_later = ['Contents', 'Payload', 'IPPayload', 'TCPPayload', 'PayloadHex']
+        self.df.drop(cols_to_prep_later, axis=1, inplace=True, errors='ignore')
+        self.df["Time"] = (self.df["Time"] - self.df["Time"].min()).dt.total_seconds()
+        self.df["Delta Time"] = self.df["Time"].diff().fillna(0)
         return self.df
+    
+    @staticmethod
+    def calculate_entropy(payload):
+        if not isinstance(payload, str) or len(payload) == 0:
+            return 0
+        value, counts = np.unique(list(payload), return_counts=True)
+        return entropy(counts, base=2)
 
     @staticmethod
     def convert_IP_to_int(ip):
@@ -102,9 +129,11 @@ class DataPreprocessor:
 class AnomalyDetector:
     def __init__(self, contamination=0.05):
         self.model = IsolationForest(contamination=contamination, random_state=42)
-
+        self.scaler = StandardScaler()
     def load_and_train_model(self, train_df):
-        self.model.fit(train_df.drop(columns=["Time"], errors='ignore'))
+        X = train_df.drop(columns=["Time"], errors='ignore')
+        X_scaled = self.scaler.fit_transform(X)
+        self.model.fit(X_scaled)
     
     def predict(self, json_input):
         if isinstance(json_input, pd.DataFrame):
@@ -124,17 +153,19 @@ class AnomalyDetector:
         predictions = self.model.predict(json_df.drop(columns=["Time"], errors='ignore'))
         return predictions
     
-
+    def calculate_true_labels(self, test_df):
+        test_df['true_label'] = np.where((test_df['Payload_Length'] <= 1460) | (test_df['Delta Time'] > 1), 0, 1)
+        return test_df['true_label']
+    '''
     def split_training_testing_df(self, df):
         split_time = df["Time"].quantile(0.8)
         train_df = df[df["Time"] <= split_time]
         test_df = df[df["Time"] > split_time]
         return train_df, test_df
+    '''
 
 # Load and preprocess data
 if __name__ == '__main__':
-    detector = AnomalyDetector()
-    
     BASE_DIR = Path(__file__).resolve().parent  # Gets the directory of the script
     datasets_dir = BASE_DIR / "datasets"    
     train_file_path = datasets_dir / "good8k_syn1k_buff1k.json"
@@ -145,11 +176,17 @@ if __name__ == '__main__':
     # Train and predict using the model
     train_df = train_df.dropna()
     test_df = test_df.dropna()
-
+    detector = AnomalyDetector()
     detector.load_and_train_model(train_df)
     test_results = detector.predict(test_df)
+    '''
+    test_results = [0 if x == -1 else 1 for x in test_results]  # Convert -1 to 0
+    true_labels = detector.calculate_true_labels(test_df)
+    print(classification_report(true_labels, test_results))
+    '''
     # 6. Save the Model as a .pkl file
     joblib.dump(detector, "network_packet_classifier.pkl")
-
     
-    #print(test_results)
+    
+    
+    
