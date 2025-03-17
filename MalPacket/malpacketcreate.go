@@ -16,7 +16,9 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-const targetIP = "192.168.0.135"
+// const targetIP = "192.168.0.195"
+var targetDevice = h.GetDefaultInterface()
+var targetIP = targetDevice.DeviceIP
 
 
 type PacketType string
