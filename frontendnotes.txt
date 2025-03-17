@@ -1,0 +1,9 @@
+make button to save session -> needs functionality
+make text input for destination computer -> will trigger packet scanner to launch w that as params
+
+make table head stay in one place
+make data load in as carroasile and push up 
+
+graphs
+    -payload size over time
+    -packet frequency over time

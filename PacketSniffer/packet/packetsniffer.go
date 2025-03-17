@@ -29,7 +29,7 @@ var (
 
 
 
-func getDefaultInterface() *s.TargetDevice {
+func GetDefaultInterface() *s.TargetDevice {
 	// Get the default gateway
 	var gateway net.IP
 	var err error
@@ -209,7 +209,7 @@ func ipv4PacketScan(packet gopacket.Packet, sourceIP string, targetIP string) *s
 
 
 func Sniff(targetIP string, mode string) {
-	device := getDefaultInterface()
+	device := GetDefaultInterface()
 	h.Okay("Using network interface: %s\n", device)
 
 	handle, err := pcap.OpenLive(device.DeviceName, 65535, true, pcap.BlockForever)
