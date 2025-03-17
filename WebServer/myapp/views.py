@@ -4,7 +4,7 @@ from django.shortcuts import render
 import json
 import joblib
 import os
-
+import random
 
 from django.conf import settings
 import pandas as pd
@@ -44,13 +44,17 @@ train_df = pd.concat([good_train_df, buffer_train_df, syn_flood_train_df], ignor
 test_df = pd.concat([good_test_df, buffer_test_df, syn_flood_test_df], ignore_index=True)
 
 detector.load_and_train_model(train_df)
-test_results = detector.predict_df(test_df)
+test_results = detector.predict_model(test_df)
 
 '''
 
 
 results = ""
 live_data = []
+packet_anomaly_count_dict = {"anomaly": 0, "normal": 0}
+
+def random_one():
+    return int(random.choice([1, -1]))
 
 @csrf_exempt
 def ipv4_data(request):
@@ -62,10 +66,19 @@ def ipv4_data(request):
             data = json.loads(request.body.decode("utf-8"))
             #! THIS IS WHERE THE AI CODE WILL LIVE AND MUTATE THE DATA
             if data:
-                results = trained_model.predict(data)
-                #data["anomaly_score"] = int(results[0])
-                live_data.append(results)
-                print(data)
+                results = detector.predict(data)
+                
+                # data["anomaly_score"] = int(results[0])
+                data["anomaly_score"] = random_one()
+                
+                if data["anomaly_score"] == 1:
+                    packet_anomaly_count_dict["anomaly"] += 1
+                else:
+                    packet_anomaly_count_dict["normal"] += 1
+                data["anomaly_normal_count"] = packet_anomaly_count_dict
+                
+                
+                # print(data)
 
             #live_data.append(data)
             
@@ -82,6 +95,7 @@ def display_data(request):
         # Return JSON data for AJAX requests
         return JsonResponse({'data': live_data})
     # Render the template for normal requests
-    return render(request, 'dashboard.html', {'data': live_data})
+    # return render(request, 'dashboard.html', {'data': live_data})
+    return render(request, 'dynamictest.html', {'data': live_data})
     
 

@@ -16,7 +16,9 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-const targetIP = "192.168.0.135"
+// const targetIP = "192.168.0.195"
+var targetDevice = h.GetDefaultInterface()
+var targetIP = targetDevice.DeviceIP
 
 
 type PacketType string
@@ -50,7 +52,8 @@ func main() {
 	}
 	
 	for i := 0; i < 10000; i++ {
-		r := rand.Intn(100) // Generate a random number between 0 and 99
+		// r := rand.Intn(100) // Generate a random number between 0 and 99
+		r := 30
 	
 		switch {
 		case r < 15 && packetCounts[SYNFlood] < 1000:
@@ -86,7 +89,7 @@ func main() {
 			break
 		}
 
-		time.Sleep(time.Duration(rand.Intn(500)+100) * time.Millisecond)
+		time.Sleep(time.Duration(5000 * time.Millisecond))
 	}
 
 	// for i := 0; i < 1000; i++ {
