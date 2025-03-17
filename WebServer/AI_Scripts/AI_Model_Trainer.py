@@ -243,7 +243,7 @@ if __name__ == '__main__':
     print(classification_report(true_labels, test_results))
     '''
     # 6. Save the Model as a .pkl file
-    joblib.dump(detector, "network_packet_classifier.pkl")
+    joblib.dump(detector, "network_packet_classifier.joblib")
     
     
     
