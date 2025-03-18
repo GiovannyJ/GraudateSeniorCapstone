@@ -7,3 +7,6 @@ make data load in as carroasile and push up
 graphs
     -payload size over time
     -packet frequency over time
+
+    make graphs on top and table on bottom 
+    make graphs a little smaller

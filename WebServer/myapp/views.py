@@ -23,9 +23,26 @@ MODEL_PATH = settings.BASE_DIR /  "models"
 #     raise FileNotFoundError(f"Model file not found at {MODEL_PATH}")
 
 
-#! WITH UNTRAINED MODEL
 AI_Scripts_dir = settings.BASE_DIR / "AI_Scripts"
-trained_model = AI_Scripts_dir / "network_packet_classifier.pkl"
+# trained_model = AI_Scripts_dir / "network_packet_classifier.pkl"
+# trained_model_path = AI_Scripts_dir / "network_packet_classifier.joblib"
+# trained_model = joblib.load(trained_model_path)
+
+#! WITH UNTRAINED MODEL
+
+datasets_dir = AI_Scripts_dir / "datasets"    
+train_file_path = datasets_dir / "good8k_syn1k_buff1k.json"
+test_file_path = datasets_dir / "All_Malware_Even.json"
+
+train_df = DataPreprocessor(DataLoader.transform_json_to_df(train_file_path)).preprocess_df()
+test_df = DataPreprocessor(DataLoader.transform_json_to_df(test_file_path)).preprocess_df()
+# Train and predict using the model
+train_df = train_df.dropna()
+test_df = test_df.dropna()
+detector = AnomalyDetector()
+detector.load_and_train_model(train_df)
+test_results = detector.predict_model(test_df)
+
 '''
 # Construct paths to the datasets
 good_packets_path = datasets_dir / "goodPackets.json"
@@ -68,8 +85,8 @@ def ipv4_data(request):
             if data:
                 results = detector.predict(data)
                 
-                # data["anomaly_score"] = int(results[0])
-                data["anomaly_score"] = random_one()
+                data["anomaly_score"] = int(results[0])
+                # data["anomaly_score"] = random_one()
                 
                 if data["anomaly_score"] == 1:
                     packet_anomaly_count_dict["anomaly"] += 1
@@ -80,7 +97,7 @@ def ipv4_data(request):
                 
                 # print(data)
 
-            #live_data.append(data)
+            live_data.append(data)
             
             return JsonResponse({"message": "IPv4 data received successfully!"}, status=200)
         
