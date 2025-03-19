@@ -113,7 +113,7 @@ This component runs a Django-based **web API** and serves a **live web page** fo
 
 ### **1️⃣ Running the Web Server**  
 ```bash
-pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 cd WebServer
 python manage.py runserver 8080
 ```
@@ -134,4 +134,9 @@ go run main.go
 To ensure data is captured, send traffic to the target IP using:
 ```bash
 ping <TARGET_IP>
+```
+Generating normal and anomalous traffic:
+```bash
+cd MalPacket
+go run malpacketcreate.go
 ```
