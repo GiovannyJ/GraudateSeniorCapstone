@@ -115,7 +115,7 @@ This component runs a Django-based **web API** and serves a **live web page** fo
 ```bash
 python3 -m pip install -r requirements.txt
 cd WebServer
-python manage.py runserver 8080
+python3 manage.py runserver 8080
 ```
 ### **2️⃣Selecting a Target & Mode**
 - **Set Target IP:** Modify the targetIP variable in main.go

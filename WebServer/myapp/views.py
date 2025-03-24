@@ -37,34 +37,12 @@ test_file_path = datasets_dir / "All_Malware_Even.json"
 train_df = DataPreprocessor(DataLoader.transform_json_to_df(train_file_path)).preprocess_df()
 test_df = DataPreprocessor(DataLoader.transform_json_to_df(test_file_path)).preprocess_df()
 # Train and predict using the model
+
 train_df = train_df.dropna()
 test_df = test_df.dropna()
 detector = AnomalyDetector()
 detector.load_and_train_model(train_df)
 test_results = detector.predict_model(test_df)
-
-'''
-# Construct paths to the datasets
-good_packets_path = datasets_dir / "goodPackets.json"
-buffer_overflow_path = datasets_dir / "BufferOverflowPackets.json"
-syn_flood_path = datasets_dir / "SYNFloodPacket.json"
-
-good_df = DataPreprocessor(DataLoader.transform_json_to_df(good_packets_path)).preprocess_df()
-buffer_df = DataPreprocessor(DataLoader.transform_json_to_df(buffer_overflow_path)).preprocess_df()
-syn_flood_df = DataPreprocessor(DataLoader.transform_json_to_df(syn_flood_path)).preprocess_df()
-
-good_train_df, good_test_df = detector.split_training_testing_df(good_df)
-buffer_train_df, buffer_test_df = detector.split_training_testing_df(buffer_df)
-syn_flood_train_df, syn_flood_test_df = detector.split_training_testing_df(syn_flood_df)
-
-train_df = pd.concat([good_train_df, buffer_train_df, syn_flood_train_df], ignore_index=True)
-test_df = pd.concat([good_test_df, buffer_test_df, syn_flood_test_df], ignore_index=True)
-
-detector.load_and_train_model(train_df)
-test_results = detector.predict_model(test_df)
-
-'''
-
 
 results = ""
 live_data = []
