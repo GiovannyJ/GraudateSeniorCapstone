@@ -56,10 +56,10 @@ func main() {
 		r := 30
 	
 		switch {
-		case r < 15 && packetCounts[SYNFlood] < 1000:
-			a.GenerateSYNFlood(handle, targetIP, targetIP, 489, 80)
-			packetCounts[SYNFlood] += 80
-			h.Okay("SYN Packet Sent")
+		// case r < 15 && packetCounts[SYNFlood] < 1000:
+		// 	a.GenerateSYNFlood(handle, targetIP, targetIP, 489, 80)
+		// 	packetCounts[SYNFlood] += 80
+		// 	h.Okay("SYN Packet Sent")
 	
 		case r < 25 && packetCounts[BufferOverflow] < 1000:
 			a.GenerateBufferOverFlowPacket(handle, targetIP, targetIP, 489, 80)
@@ -73,11 +73,14 @@ func main() {
 		// 	h.Okay("Spoof Packet Sent")
 		default:
 			if packetCounts[NormalPacket] < 8000 {
-				payload := generateHTTPPayload()
-				encryptedPayload := simulateEncryptedPayload(payload)
-				h.SendTCPPacket(handle, targetIP, targetIP, 489, 80, encryptedPayload)
-				packetCounts[NormalPacket]++
-				h.Okay("Normal Packet Sent")
+				// payload := generateHTTPPayload()
+				// encryptedPayload := simulateEncryptedPayload(payload)
+				// h.SendTCPPacket(handle, targetIP, targetIP, 489, 80, encryptedPayload)
+				// packetCounts[NormalPacket]++
+				// h.Okay("Normal Packet Sent")
+				a.GenerateBufferOverFlowPacket(handle, targetIP, targetIP, 489, 80)
+				packetCounts[BufferOverflow]++
+				h.Okay("Buffer Overflow Packet Sent")
 			}
 		}
 
@@ -89,7 +92,7 @@ func main() {
 			break
 		}
 
-		time.Sleep(time.Duration(5000 * time.Millisecond))
+		// time.Sleep(time.Duration(5000 * time.Millisecond))
 	}
 
 	// for i := 0; i < 1000; i++ {

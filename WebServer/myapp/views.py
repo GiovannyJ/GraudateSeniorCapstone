@@ -5,6 +5,7 @@ import json
 import joblib
 import os
 import random
+import time
 
 from django.conf import settings
 import pandas as pd
@@ -13,6 +14,28 @@ import pandas as pd
 from AI_Scripts.AI_Model_Trainer import  AnomalyDetector, DataLoader, DataPreprocessor
 detector = AnomalyDetector()
 
+timings = {
+    "web_server_boot": 0,
+    "ai_training": 0,
+    "request_loading": 0,
+    "request_processing": 0,
+    "data_appending": 0
+}
+
+def start_timer():
+    return time.time()
+
+def end_timer(start_time, operation):
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    timings[operation] = elapsed_time
+    return elapsed_time
+
+def get_timings():
+    return timings
+
+
+ai_training_start = start_timer()
 #! WITH TRAINED MODEL
 MODEL_PATH = settings.BASE_DIR /  "models" 
 
@@ -29,7 +52,6 @@ AI_Scripts_dir = settings.BASE_DIR / "AI_Scripts"
 # trained_model = joblib.load(trained_model_path)
 
 #! WITH UNTRAINED MODEL
-
 datasets_dir = AI_Scripts_dir / "datasets"    
 train_file_path = datasets_dir / "good8k_syn1k_buff1k.json"
 test_file_path = datasets_dir / "All_Malware_Even.json"
@@ -42,6 +64,7 @@ test_df = test_df.dropna()
 detector = AnomalyDetector()
 detector.load_and_train_model(train_df)
 test_results = detector.predict_model(test_df)
+end_timer(ai_training_start, "ai_training")
 
 '''
 # Construct paths to the datasets
@@ -77,12 +100,15 @@ def random_one():
 def ipv4_data(request):
     global live_data  # Access the global variable
     
+    request_loading_start = start_timer()
     if request.method == "POST":
         try:
             # Parse incoming JSON data
             data = json.loads(request.body.decode("utf-8"))
             #! THIS IS WHERE THE AI CODE WILL LIVE AND MUTATE THE DATA
             if data:
+                end_timer(request_loading_start, "request_loading")
+                request_processing = start_timer()
                 results = detector.predict(data)
                 
                 data["anomaly_score"] = int(results[0])
@@ -90,14 +116,17 @@ def ipv4_data(request):
                 
                 if data["anomaly_score"] == 1:
                     packet_anomaly_count_dict["anomaly"] += 1
+                    print("\n\n\nTHIS IS AN ANOMLY\n\n\n")
                 else:
                     packet_anomaly_count_dict["normal"] += 1
+                    print("\n\n\nTHIS IS NORMAL\n\n\n")
                 data["anomaly_normal_count"] = packet_anomaly_count_dict
-                
+                end_timer(request_processing, "request_processing")
                 
                 # print(data)
 
             live_data.append(data)
+            # print(f"\nTIMINGS: \n {get_timings()}  \n\n\n")
             
             return JsonResponse({"message": "IPv4 data received successfully!"}, status=200)
         
@@ -113,6 +142,7 @@ def display_data(request):
         return JsonResponse({'data': live_data})
     # Render the template for normal requests
     # return render(request, 'dashboard.html', {'data': live_data})
+    
     return render(request, 'dynamictest.html', {'data': live_data})
     
 

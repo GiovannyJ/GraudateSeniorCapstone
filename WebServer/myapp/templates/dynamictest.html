@@ -16,12 +16,47 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     
+    
     <style>
         /* Custom styles */
-        .normal { background-color: #d4edda; } /* Green for normal */
-        .anomaly { background-color: #f8d7da; } /* Red for anomaly */
+        .normal { background-color: #d4edda;} /* Green for normal */
+        .anomaly { background-color: #f8d7da;} /* Red for anomaly */
         .hidden { display: none; } /* Hide verbose columns by default */
         pre { white-space: pre-wrap; word-wrap: break-word; } /* For formatting payload */
+
+        /*Formatting new payload animation*/
+        @keyframes newNormalPacket {
+            0%{
+                background-color: yellow;
+            }
+             100%{
+                background-color: #d4edda;
+             }
+        }
+
+        @keyframes newAnomalyPacket {
+            0%{
+                background-color: yellow;
+            }
+             100%{
+                background-color: #f8d7da;
+             }
+        }
+
+          /* Fix the table header */
+          .table-responsive {
+            position: relative;
+            max-height: 600px; /* Adjust height as needed */
+            overflow-y: auto;
+        }
+
+        .table-responsive thead th {
+            position: sticky;
+            top: 0;
+            background-color: #343a40; /* Match the header background color */
+            color: white; /* Match the header text color */
+            z-index: 1; /* Ensure the header stays above the table body */
+        }
     </style>
 </head>
 <body>
@@ -29,23 +64,36 @@
         <h1 class="mt-4" style="text-align: center;">Anomalyze</h1>
         <h3 class="mt-4">IPv4 Data</h3>
         <button id="toggle-verbose-btn" class="btn btn-success mb-3" onclick="toggleVerboseMode()">Show Details</button>
-        <button id="" class="btn btn-success mb-3" onclick="alert('session saved!')">Save Session</button>
-        <div class="row mb-1">
-            <div class="col-10"></div>
-            <form>
-                <input class="form-input" type="text" value="destination ip address">
-                <button> search</button>
-            </form>
+        <button id="" class="btn btn-success mb-3" onclick="saveSession()">Save Session</button>
+        <div class="row ">
+            <div class="col-10">
+            </div>
+            <!--div class="col-2">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="destIPAddr" class="col-8 control-label">Destination IP Address</label>
+                        <div class="col-8">
+                            <input type="text" id="destIPAddr" class="form-control">
+                        </div>
+                        
+                            <div class="col-2 ml-10">
+                                <button class="btn btn-default" type="submit" id="search">Search</button>
+                            </div>
+                        
+                      </div>
+                </form>
+            </div-->
         </div>
-        <div class="row">
-            <div class="col-2" style="background-color:cornflowerblue;">
+        <div class="row ml-1 mr-1" style="height: 600px">
+            
+            <div class="col-1" style="background-color:cornflowerblue;">
                 Source
                 <br>
                 computer here
                 <br>
                 ip address
             </div>
-            <div class="col-8">
+            <div class="col-10">
                 <div class="table-responsive overflow-scroll" style="max-width: 3000px; max-height: 600px;">
                     <table id="data-table" class="table">
                         <thead class="thead-dark">
@@ -89,7 +137,7 @@
                     </table>
                 </div>
             </div>
-            <div class="col-2" style="background-color: crimson;">
+            <div class="col-1" style="background-color: crimson;">
                 Destination
                 <br>
                 computer here
@@ -97,6 +145,8 @@
                 ip address
             </div>
         </div>
+    </div>
+        <!--BEGIN CHARTS-->
         <div class="row mt-4">
             <div class="col-2" id="donut-chart"></div>
             <div class="col-4">
@@ -111,7 +161,14 @@
                     <canvas id="myChart2"></canvas>
                 </div>
             </div>
+            <div class="col-2">
+                <h2>Packet Type</h2>
+                <div>
+                    <canvas id="myStyledBarChart" width="370" height="160"></canvas>
+                </div>
+            </div>
         </div>
+        <!--END CHARTS-->
     </div>
 
     <script>
@@ -120,99 +177,227 @@
         let payloadFrequencyData = []; // Array to store payload frequency data
         let timeLabels = []; // Array to store time labels
         let myChart, myChart2; // Chart instances
+        let horizontalBarChart
+        let responseDataArrSize = 0
+        let responseData = []
+        let normalPayloadCount = 0
+        let synFloodPayloadCount = 0
+        let bufferOverflowPayloadCount = 0
+        
 
-        // Function to fetch data via AJAX
+        // function fetchData() {
+        //     $.ajax({
+        //         url: window.location.href, // Use the current URL
+        //         type: 'GET',
+        //         headers: {
+        //             'X-Requested-With': 'XMLHttpRequest' // Indicate this is an AJAX request
+        //         },
+        //         success: function(response) {
+        //             //! IF THE DATA IS NOT EMPTY THEN REFRESH
+        //             console.log("response" + response);
+        //             if (response.data && response.data.length > 0) {
+        //                 console.log("response data" + response.data);
+
+        //                 responseData = response.data; // Store the response data globally
+        //                 let tableBody = $('#data-table tbody');
+
+        //                 // Get the newest item (assuming it's the first item in the array)
+        //                 let newestItem = response.data[0];
+
+        //                 // Determine row class and animation based on anomaly score
+        //                 let rowClass = newestItem.anomaly_score === -1 ? 'normal' : 'anomaly';
+        //                 let animation = rowClass === 'normal' ? 'newNormalPacket 1s 1 normal' : 'newAnomalyPacket 1s 1 normal';
+
+        //                 // Prepend the newest item to the table
+        //                 tableBody.prepend(
+        //                     `<tr class="${rowClass}" style="animation: ${animation};">
+        //                         <td>${newestItem.ipv4data.type}</td>
+        //                         <td>${newestItem.ipv4data.source}</td>
+        //                         <td>${newestItem.ipv4data.destination}</td>
+        //                         <td>${newestItem.ipv4data.protocol}</td>
+        //                         <td>${newestItem.ipv4data.flags || 'None'}</td>
+        //                         <td>${newestItem.ipv4data.frag_offset}</td>
+        //                         <td>${newestItem.ipv4data.ihl}</td>
+        //                         <td>${newestItem.ipv4data.length}</td>
+        //                         <td>${newestItem.ipv4data.checksum}</td>
+        //                         <td>${newestItem.ipv4data.ttl}</td>
+        //                         <td>${newestItem.ipv4data.version}</td>
+        //                         <td>${newestItem.ipv4data.tos}</td>
+        //                         <td><pre>${newestItem.tcpdata.payload}</pre></td>
+        //                         <td><pre>${newestItem.ipv4data.base_layer?.Contents || ''}</pre></td>
+        //                         <td><pre>${newestItem.ipv4data.base_layer?.Payload || ''}</pre></td>
+        //                         <td><pre>${newestItem.ipv4data.timestamp}</pre></td>
+        //                         <td class="verbose hidden">${newestItem.tcpdata.source_ip}</td>
+        //                         <td class="verbose hidden">${newestItem.tcpdata.destination_ip}</td>
+        //                         <td class="verbose hidden">${newestItem.tcpdata.source_port}</td>
+        //                         <td class="verbose hidden">${newestItem.tcpdata.destination_port}</td>
+        //                         <td class="verbose hidden">${newestItem.tcpdata.sequence_number}</td>
+        //                         <td class="verbose hidden">${newestItem.tcpdata.acknowledgment_number}</td>
+        //                         <td class="verbose hidden">${newestItem.tcpdata.data_offset}</td>
+        //                         <td class="verbose hidden">${newestItem.tcpdata.flags}</td>
+        //                         <td class="verbose hidden">${newestItem.tcpdata.window_size}</td>
+        //                         <td class="verbose hidden">${newestItem.tcpdata.checksum}</td>
+        //                         <td class="verbose hidden">${newestItem.tcpdata.urgent_pointer}</td>
+        //                         <td class="verbose hidden"><pre>${newestItem.tcpdata.payload}</pre></td>
+        //                         <td class="verbose hidden"><pre>${newestItem.tcpdata.payload_hex}</pre></td>
+        //                         <td class="verbose hidden"><pre>${newestItem.tcpdata.timestamp}</pre></td>
+        //                         <td>${newestItem.anomaly_score}</td>
+        //                     </tr>`
+        //                 );
+
+        //                 // Update payload size and frequency data
+        //                 let payloadSize = newestItem.tcpdata.payload.length || 0;
+        //                 let timestamp = new Date(newestItem.ipv4data.timestamp);
+        //                 let timeString = timestamp.toLocaleTimeString(); // Format timestamp to display only time
+
+        //                 // Add new data to the arrays
+        //                 payloadSizeData.push(payloadSize);
+        //                 payloadFrequencyData.push(payloadSizeData.length); // Frequency is the count of payloads
+        //                 timeLabels.push(timeString);
+
+        //                 normalPayloadCount = 1
+        //                 synFloodPayloadCount = 2
+        //                 bufferOverflowPayloadCount = 3
+
+        //                 // Update the donut chart
+        //                 let chart = bb.generate({
+        //                     data: {
+        //                         columns: [
+        //                             ["Anomaly", newestItem.anomaly_normal_count.anomaly],
+        //                             ["Normal", newestItem.anomaly_normal_count.normal],
+        //                         ],
+        //                         type: "donut",
+        //                     },
+        //                     donut: {
+        //                         title: "Anomaly vs Normal Packets",
+        //                     },
+        //                     bindto: "#donut-chart",
+        //                 });
+
+        //                 // Update the charts
+        //                 updateCharts();
+        //             } else {
+        //                 // If no data is available, display a message
+        //                 // $('#data-table tbody').html('<tr><td colspan="30">No data available.</td></tr>');
+        //             }
+        //         },
+        //         error: function(xhr, status, error) {
+        //             console.error("AJAX request failed:", status, error);
+        //         }
+        //     });
+        // }
+       
         function fetchData() {
-            $.ajax({
-                url: window.location.href, // Use the current URL
-                type: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest' // Indicate this is an AJAX request
-                },
-                success: function(response) {
-                    if (response.data) {
-                        let tableBody = $('#data-table tbody');
-                        tableBody.empty(); // Clear existing rows
+    $.ajax({
+        url: window.location.href, // Use the current URL
+        type: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest' // Indicate this is an AJAX request
+        },
+        success: function(response) {
+            // Check if the response data is empty or unchanged
+            if (!response.data || response.data.length === 0 || JSON.stringify(response.data) === JSON.stringify(responseData)) {
+                console.log("No new data received.");
+                return; // Exit the function if no new data is available
+            }
 
-                        // Loop through the data and add rows to the table
-                        response.data.forEach(function(item) {
-                            let rowClass = item.anomaly_score === -1 ? 'normal' : 'anomaly';
-                            tableBody.append(
-                                `<tr class="${rowClass}">
-                                    <td>${item.ipv4data.type}</td>
-                                    <td>${item.ipv4data.source}</td>
-                                    <td>${item.ipv4data.destination}</td>
-                                    <td>${item.ipv4data.protocol}</td>
-                                    <td>${item.ipv4data.flags || 'None'}</td>
-                                    <td>${item.ipv4data.frag_offset}</td>
-                                    <td>${item.ipv4data.ihl}</td>
-                                    <td>${item.ipv4data.length}</td>
-                                    <td>${item.ipv4data.checksum}</td>
-                                    <td>${item.ipv4data.ttl}</td>
-                                    <td>${item.ipv4data.version}</td>
-                                    <td>${item.ipv4data.tos}</td>
-                                    <td><pre>${item.ipv4data.payload}</pre></td>
-                                    <td><pre>${item.ipv4data.base_layer?.Contents || ''}</pre></td>
-                                    <td><pre>${item.ipv4data.base_layer?.Payload || ''}</pre></td>
-                                    <td><pre>${item.ipv4data.timestamp}</pre></td>
-                                    <td class="verbose hidden">${item.tcpdata.source_ip}</td>
-                                    <td class="verbose hidden">${item.tcpdata.destination_ip}</td>
-                                    <td class="verbose hidden">${item.tcpdata.source_port}</td>
-                                    <td class="verbose hidden">${item.tcpdata.destination_port}</td>
-                                    <td class="verbose hidden">${item.tcpdata.sequence_number}</td>
-                                    <td class="verbose hidden">${item.tcpdata.acknowledgment_number}</td>
-                                    <td class="verbose hidden">${item.tcpdata.data_offset}</td>
-                                    <td class="verbose hidden">${item.tcpdata.flags}</td>
-                                    <td class="verbose hidden">${item.tcpdata.window_size}</td>
-                                    <td class="verbose hidden">${item.tcpdata.checksum}</td>
-                                    <td class="verbose hidden">${item.tcpdata.urgent_pointer}</td>
-                                    <td class="verbose hidden"><pre>${item.tcpdata.payload}</pre></td>
-                                    <td class="verbose hidden"><pre>${item.tcpdata.payload_hex}</pre></td>
-                                    <td class="verbose hidden"><pre>${item.tcpdata.timestamp}</pre></td>
-                                    <td>${item.anomaly_score}</td>
-                                </tr>`
-                            );
+            console.log("response" + response);
+            if (response.data && response.data.length > 0) {
+                console.log("response data" + response.data);
 
-                            // Update payload size and frequency data
-                            let payloadSize = item.ipv4data.length || 0;
-                            let timestamp = new Date(item.ipv4data.timestamp);
-                            let timeString = timestamp.toLocaleTimeString(); // Format timestamp to display only time
+                responseData = response.data; // Store the response data globally
+                let tableBody = $('#data-table tbody');
 
-                            // Add new data to the arrays
-                            payloadSizeData.push(payloadSize);
-                            payloadFrequencyData.push(payloadSizeData.length); // Frequency is the count of payloads
-                            timeLabels.push(timeString);
-                            let chart = bb.generate({
-                                        data: {
-                                            columns: [
-                                                ["Anomaly", item.anomaly_normal_count.anomaly],
-                                                ["Normal", item.anomaly_normal_count.normal],
-                                            ],
-                                            type: "donut",
-                                        },
-                                        donut: {
-                                            title: "Anomaly vs Normal Packets",
-                                        },
-                                        bindto: "#donut-chart",
-                                    });
-                        });
+                // Get the newest item (assuming it's the first item in the array)
+                let newestItem = response.data[0];
 
-                        // Update the charts
-                        updateCharts();
-                    } else {
-                        // If no data is available, display a message
-                        $('#data-table tbody').html('<tr><td colspan="30">No data available.</td></tr>');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error("AJAX request failed:", status, error);
-                }
-            });
+                // Determine row class and animation based on anomaly score
+                let rowClass = newestItem.anomaly_score === -1 ? 'normal' : 'anomaly';
+                let animation = rowClass === 'normal' ? 'newNormalPacket 1s 1 normal' : 'newAnomalyPacket 1s 1 normal';
+
+                // Prepend the newest item to the table
+                tableBody.prepend(
+                    `<tr class="${rowClass}" style="animation: ${animation};">
+                        <td>${newestItem.ipv4data.type}</td>
+                        <td>${newestItem.ipv4data.source}</td>
+                        <td>${newestItem.ipv4data.destination}</td>
+                        <td>${newestItem.ipv4data.protocol}</td>
+                        <td>${newestItem.ipv4data.flags || 'None'}</td>
+                        <td>${newestItem.ipv4data.frag_offset}</td>
+                        <td>${newestItem.ipv4data.ihl}</td>
+                        <td>${newestItem.ipv4data.length}</td>
+                        <td>${newestItem.ipv4data.checksum}</td>
+                        <td>${newestItem.ipv4data.ttl}</td>
+                        <td>${newestItem.ipv4data.version}</td>
+                        <td>${newestItem.ipv4data.tos}</td>
+                        <td><pre>${newestItem.tcpdata.payload}</pre></td>
+                        <td><pre>${newestItem.ipv4data.base_layer?.Contents || ''}</pre></td>
+                        <td><pre>${newestItem.ipv4data.base_layer?.Payload || ''}</pre></td>
+                        <td><pre>${newestItem.ipv4data.timestamp}</pre></td>
+                        <td class="verbose hidden">${newestItem.tcpdata.source_ip}</td>
+                        <td class="verbose hidden">${newestItem.tcpdata.destination_ip}</td>
+                        <td class="verbose hidden">${newestItem.tcpdata.source_port}</td>
+                        <td class="verbose hidden">${newestItem.tcpdata.destination_port}</td>
+                        <td class="verbose hidden">${newestItem.tcpdata.sequence_number}</td>
+                        <td class="verbose hidden">${newestItem.tcpdata.acknowledgment_number}</td>
+                        <td class="verbose hidden">${newestItem.tcpdata.data_offset}</td>
+                        <td class="verbose hidden">${newestItem.tcpdata.flags}</td>
+                        <td class="verbose hidden">${newestItem.tcpdata.window_size}</td>
+                        <td class="verbose hidden">${newestItem.tcpdata.checksum}</td>
+                        <td class="verbose hidden">${newestItem.tcpdata.urgent_pointer}</td>
+                        <td class="verbose hidden"><pre>${newestItem.tcpdata.payload}</pre></td>
+                        <td class="verbose hidden"><pre>${newestItem.tcpdata.payload_hex}</pre></td>
+                        <td class="verbose hidden"><pre>${newestItem.tcpdata.timestamp}</pre></td>
+                        <td>${newestItem.anomaly_score}</td>
+                    </tr>`
+                );
+
+                // Update payload size and frequency data
+                let payloadSize = newestItem.tcpdata.payload.length || 0;
+                let timestamp = new Date(newestItem.ipv4data.timestamp);
+                let timeString = timestamp.toLocaleTimeString(); // Format timestamp to display only time
+
+                // Add new data to the arrays
+                payloadSizeData.push(payloadSize);
+                payloadFrequencyData.push(payloadSizeData.length); // Frequency is the count of payloads
+                timeLabels.push(timeString);
+
+                normalPayloadCount = 1
+                synFloodPayloadCount = 2
+                bufferOverflowPayloadCount = 3
+
+                // Update the donut chart
+                let chart = bb.generate({
+                    data: {
+                        columns: [
+                            ["Anomaly", newestItem.anomaly_normal_count.anomaly],
+                            ["Normal", newestItem.anomaly_normal_count.normal],
+                        ],
+                        type: "donut",
+                    },
+                    donut: {
+                        title: "Anomaly vs Normal Packets",
+                    },
+                    bindto: "#donut-chart",
+                });
+
+                // Update the charts
+                updateCharts();
+            } else {
+                // If no data is available, display a message
+                // $('#data-table tbody').html('<tr><td colspan="30">No data available.</td></tr>');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("AJAX request failed:", status, error);
         }
+    });
+}
+
 
         // Function to update the charts
         function updateCharts() {
-            if (myChart && myChart2) {
+            if (myChart && myChart2 && horizontalBarChart) {
                 myChart.data.labels = timeLabels;
                 myChart.data.datasets[0].data = payloadSizeData;
                 myChart.update();
@@ -220,10 +405,11 @@
                 myChart2.data.labels = timeLabels;
                 myChart2.data.datasets[0].data = payloadFrequencyData;
                 myChart2.update();
-            }
-            
-            
 
+                horizontalBarChart.data[0] = 10
+                horizontalBarChart.data[1] = 10
+                horizontalBarChart.data[2] = 10
+            }
         }
 
         // Function to toggle verbose mode
@@ -231,6 +417,32 @@
             verboseMode = !verboseMode;
             $('.verbose').toggleClass('hidden');
             $('#toggle-verbose-btn').text(verboseMode ? 'Hide Details' : 'Show Details');
+        }
+
+                // Function to save the session data to a file
+        function saveSession() {
+            if (responseData.length === 0) {
+                alert("No data to save!");
+                return;
+            }
+
+            // Convert the response data to a JSON string
+            const jsonData = JSON.stringify(responseData, null, 2);
+
+            // Create a Blob with the JSON data
+            const blob = new Blob([jsonData], { type: 'application/json' });
+
+            // Create a link element to trigger the download
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'PacketCapture.json';
+
+            // Append the link to the body and trigger the download
+            document.body.appendChild(link);
+            link.click();
+
+            // Remove the link from the document
+            document.body.removeChild(link);
         }
 
         // Start fetching data when the page loads
@@ -314,12 +526,46 @@
                 }
             });
 
+            horizontalBarChart = new Chart(document.getElementById('myStyledBarChart').getContext('2d'), {
+                    type: 'bar',
+                    data: {labels: ['Normal', 'Buffer Overflow',
+                             'Syn-Flood'],
+                    datasets: [{
+                        label: 'Styled Bar Chart',
+                        data: [normalPayloadCount, synFloodPayloadCount, bufferOverflowPayloadCount],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.5)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.9)',
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 10,
+                        hoverBackgroundColor: 'rgba(255, 99, 132, 0.8)',
+                        hoverBorderColor: 'rgba(255, 99, 132, 1)'
+                    }]},
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                    });
+
             // Fetch data immediately and then every 5 seconds
             fetchData();
-            setInterval(fetchData, 2000);
+            // setInterval(fetchData, 1000);
+            setInterval(fetchData, 250);
 
             // Toggle verbose mode
             $('#toggle-verbose-btn').click(toggleVerboseMode);
+            //save session data when save button is clicked
+            $('#save-session-btn').click(saveSession);
         });
     </script>
 </body>

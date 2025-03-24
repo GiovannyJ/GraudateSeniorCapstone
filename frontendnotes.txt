@@ -1,4 +1,4 @@
-make button to save session -> needs functionality
+make button to save session
 make text input for destination computer -> will trigger packet scanner to launch w that as params
 
 make table head stay in one place

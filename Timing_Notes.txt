@@ -1,0 +1,36 @@
+Average Times
+Frontend:
+Time Interval Set For Requests: .25s
+Boot Time for WebServer: .5s
+Process Time for packet in: 0 + backend delay (0)
+Process time for AI training: 1.4520022869110107
+Process time for AI result: 0.013997554779052734
+
+Backend:
+Process Time for packet scan: 0s
+
+Recorded Times
+TIMINGS:
+1s interval on frontend
+{'ai_training': 1.5706212520599365, 
+'request_loading': 0.0005121231079101562, 
+'request_processing': 0.011995315551757812
+}
+
+.5s interval on frontend
+TIMINGS:
+{'ai_training': 1.3670001029968262,
+'request_loading': 0.0,
+'request_processing': 0.02099919319152832
+}
+
+.25 interval on frontend
+TIMINGS:
+{'ai_training': 1.4520022869110107,
+'request_loading': 0.0,
+'request_processing': 0.013997554779052734
+}
+
+TIMING CALCULATION
+.5 + .25 + 0 + 1.4520022869110107 = 2.20s start up
+0 + 0.013997554779052734 = 0.02s delay
