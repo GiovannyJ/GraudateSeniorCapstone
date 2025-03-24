@@ -1,28 +1,10 @@
-MalPacket
--create script that simulates malicious traffic
-struct: malpacket{ip info, mal_packet_flag}
+FIX README.md
 
-
+MalPacket:
 
 PacketSniffer
-Allow for TCP Traffic to be scanned
--fix TCP packet scan
--allow for other PROTOCOLS in the second layer
 
 AI STUFF:
--supervised: kaggle dataset
-
--unsuperived 
-    - dummy data we create -> 
-        - flood attack (DOS)
-        - malicious packet payload
-
-- unsuperived live data 
-    - go into model -> test and approve after 
-
--model selection 
-    - random forest (baseline)
-    - RESEARCH OTHER ONES 
 
 - check for model accuracy & eval metrics (ways to know this is correct)
 

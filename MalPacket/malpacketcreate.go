@@ -73,14 +73,14 @@ func main() {
 		// 	h.Okay("Spoof Packet Sent")
 		default:
 			if packetCounts[NormalPacket] < 8000 {
-				// payload := generateHTTPPayload()
-				// encryptedPayload := simulateEncryptedPayload(payload)
-				// h.SendTCPPacket(handle, targetIP, targetIP, 489, 80, encryptedPayload)
-				// packetCounts[NormalPacket]++
-				// h.Okay("Normal Packet Sent")
-				a.GenerateBufferOverFlowPacket(handle, targetIP, targetIP, 489, 80)
-				packetCounts[BufferOverflow]++
-				h.Okay("Buffer Overflow Packet Sent")
+				payload := generateHTTPPayload()
+				encryptedPayload := simulateEncryptedPayload(payload)
+				h.SendTCPPacket(handle, targetIP, targetIP, 489, 80, encryptedPayload)
+				packetCounts[NormalPacket]++
+				h.Okay("Normal Packet Sent")
+				// a.GenerateBufferOverFlowPacket(handle, targetIP, targetIP, 489, 80)
+				// packetCounts[BufferOverflow]++
+				// h.Okay("Buffer Overflow Packet Sent")
 			}
 		}
 
@@ -92,7 +92,7 @@ func main() {
 			break
 		}
 
-		// time.Sleep(time.Duration(5000 * time.Millisecond))
+		time.Sleep(time.Duration(2000 * time.Millisecond))
 	}
 
 	// for i := 0; i < 1000; i++ {

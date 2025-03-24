@@ -1,12 +1,35 @@
-make button to save session
 make text input for destination computer -> will trigger packet scanner to launch w that as params
 
-make table head stay in one place
-make data load in as carroasile and push up 
+What should they See
+    -2 computers, info about them (ip address, who is target who is source)
+    take out:
+        type
+        source
+        destination
+        protocol
+        flag
+        frag offset
+        IHL
+        verions
+        TOS
+        
+    -show TCP flags
+    -timestamp in front
+    -TCP payload
+    -make a pop up talking about what we do 
+        -we scan for this on this using this
+        -instructions on how to use as well
+    -make arrow to show where packet went
 
-graphs
-    -payload size over time
+What should they do
+    type in IP address -> press Run 
+What features are there
+    -run 
+    -stop scan
+    -save (DONE)
+
+What stats are there
+    -anomaly vs normal 
+    -packet size over time
     -packet frequency over time
-
-    make graphs on top and table on bottom 
-    make graphs a little smaller
+    -true labels count (to be added)
