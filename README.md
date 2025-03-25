@@ -8,35 +8,13 @@ This project consists of a **network packet sniffer**, an **AI model**, and a **
 
 ## **📂 Project Structure**  
 
-### **Cyber/**  
-- **`datasets/`** - Contains datasets for AI training.  
-- **`AI_model.py`** - The AI route model for processing captured network data.  
-- **`API.py`** - A test instance of how an API can be used to retrieve information from the network packet scanner.  
-  - **POST Route:** `localhost:8080/IPv4Data`  
-  - **Data Format:**  
-    ```json
-    {
-      "type": "IPv4",
-      "source": "192.168.0.135",
-      "destination": "8.8.8.8",
-      "protocol": "ICMPv4",
-      "flags": null,
-      "frag_offset": 0,
-      "ihl": 5,
-      "length": 84,
-      "options": null,
-      "padding": null,
-      "base_layer": {
-        "Contents": "RQAAVK/VAABAAQAAwKgAhwgICAg=",
-        "Payload": "CADxQ7UoAAfrvZ5nAAAA..."
-      },
-      "checksum": 0,
-      "ttl": 64,
-      "version": 4,
-      "tos": 0,
-      "payload": "..ñCµ(..ë½.g....û.\r..."
-    }
-    ```
+
+### **MalPacket/**
+- **`helper/`** - Contains helper functions for packet routing.  
+- **`MalPacketAtkMethods/`** - Contains different attack methods possible with IPv4 TCP packets.  
+- **`malpacketcreate.go`** - The main driver for simulating a malicious packet environment.  Will send all information **internally** as a loopback system.
+
+
 
 ---
 
@@ -78,12 +56,19 @@ This project consists of a **network packet sniffer**, an **AI model**, and a **
 
 ---
 
-## **🌐 WebServer/**  
+## **🌐 WebServer/** 
 This component runs a Django-based **web API** and serves a **live web page** for packet analysis.  
+### **AI_Scripts/** 
+- **`datasets/`** - Different datasets uses to train and test the AI model
+- **`AI_Model_Trainer.py`** - The main driver for the AI model
+  - contains classes to load and preprocess data, as well as train and test the AI model
+
+### **models/**
+- different models saved from the trained AI
 
 ### **myapp/** (Main Web Application)  
 #### **templates/**  
-- **`display_data.html`** - The web page displaying IPv4 data via AJAX (auto-refresh every **1 second**).  
+- **`dynamictest.html`** - The web page displaying IPv4 data via AJAX (auto-refresh every **1 second**).  
 
 #### **Backend Logic**  
 - **`urls.py`** - Defines the web server’s routes:  
@@ -140,3 +125,7 @@ Generating normal and anomalous traffic:
 cd MalPacket
 go run malpacketcreate.go
 ```
+
+----
+### KNOWN ISSUES
+- When using the application with Windows11 network APIs do not work to detect the network interface.
