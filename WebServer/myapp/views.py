@@ -6,6 +6,7 @@ import joblib
 import os
 import random
 import time
+import re
 
 from django.conf import settings
 import pandas as pd
@@ -33,6 +34,15 @@ def end_timer(start_time, operation):
 
 def get_timings():
     return timings
+ 
+     
+# Define a function for
+# validate an Ip address
+def check(Ip): 
+    regex = "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$"
+    # pass the regular expression
+    # and the string in search() method
+    return re.search(regex, Ip)
 
 
 ai_training_start = start_timer()
@@ -124,3 +134,23 @@ def display_data(request):
     return render(request, 'dynamictest.html', {'data': live_data})
     
 
+
+
+@csrf_exempt
+def start_packet_scan(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            dest_ip = data.get('dest_ip', '')
+            if check(dest_ip):
+                print(f"Packet Scan Started for IP: {dest_ip}")
+            
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Packet Scan Started',
+                    'destination_ip': dest_ip
+                })
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)

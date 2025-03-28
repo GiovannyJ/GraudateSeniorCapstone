@@ -61,30 +61,35 @@
 </head>
 <body>
     <div class="container-fluid">
-        <h1 class="mt-4" style="text-align: center;">Anomalyze</h1>
-        <h3 class="mt-4">IPv4 Data</h3>
-        <button id="toggle-verbose-btn" class="btn btn-success mb-3" onclick="toggleVerboseMode()">Show Details</button>
-        <button id="" class="btn btn-success mb-3" onclick="saveSession()">Save Session</button>
-        <div class="row ">
-            <div class="col-10">
-            </div>
-            <!--div class="col-2">
-                <form class="form-horizontal">
-                    <div class="form-group">
-                        <label for="destIPAddr" class="col-8 control-label">Destination IP Address</label>
-                        <div class="col-8">
-                            <input type="text" id="destIPAddr" class="form-control">
+        <h1 class="mt-4" style="text-align: center;">Anomalyze 
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModalCenter">I</button>
+        </h1>
+        
+        
+        
+        <div class=" mb-3">
+            <div class="row">
+                <div class="col-auto">
+                    <button id="" class="btn btn-primary mb-3" onclick="saveSession()">Save Session</button>
+                </div>
+                <div class="col-auto">
+                    <button id="" class="btn btn-danger mb-3" onclick="alert('session stopped')">Stop Session</button>
+                </div>
+                <div class="col-auto">
+                    <form class="form-inline" id="startPacketScan" method="POST" action="{% url 'start_packet_scan' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input type="text" id="destIPAddr" name="dest_ip" class="form-control" placeholder="Destination IP Address">
                         </div>
-                        
-                            <div class="col-2 ml-10">
-                                <button class="btn btn-default" type="submit" id="search">Search</button>
-                            </div>
-                        
-                      </div>
-                </form>
-            </div-->
+                        <div class="col-auto">
+                            <button class="btn btn-success" type="submit" id="search">Start Session</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="row ml-1 mr-1" style="height: 600px">
+
+        <div class="row ml-1 mr-1 mt-4" style="height: 600px">
             
             <div class="col-1" style="background-color:cornflowerblue;">
                 Source
@@ -98,36 +103,19 @@
                     <table id="data-table" class="table">
                         <thead class="thead-dark">
                             <tr>
-                                <th>Type</th>
-                                <th>Source</th>
-                                <th>Destination</th>
-                                <th>Protocol</th>
-                                <th>Flags</th>
-                                <th>Frag Offset</th>
-                                <th>IHL</th>
+                                <th>Timestamp</th>
+                                <th>Traveled To</th>
                                 <th>Length</th>
                                 <th>Checksum</th>
                                 <th>TTL</th>
-                                <th>Version</th>
-                                <th>TOS</th>
-                                <th>Payload</th>
-                                <th>Base Layer Contents</th>
-                                <th>Base Layer Payload</th>
-                                <th>IPv4 Timestamp</th>
-                                <th class="verbose hidden">TCP Source IP</th>
-                                <th class="verbose hidden">TCP Destination IP</th>
-                                <th class="verbose hidden">TCP Source Port</th>
-                                <th class="verbose hidden">TCP Destination Port</th>
-                                <th class="verbose hidden">TCP Seq Number</th>
-                                <th class="verbose hidden">TCP Ack Number</th>
-                                <th class="verbose hidden">TCP Data Offset</th>
-                                <th class="verbose hidden">TCP Flags</th>
-                                <th class="verbose hidden">TCP Window Size</th>
-                                <th class="verbose hidden">TCP Checksum</th>
-                                <th class="verbose hidden">TCP Urgent Pointer</th>
-                                <th class="verbose hidden">TCP Payload</th>
-                                <th class="verbose hidden">TCP Payload Hex</th>
-                                <th class="verbose hidden">TCP Timestamp</th>
+                                <th>TCP Payload</th>
+                                <th>TCP Base Layer Contents</th>
+                                <th>TCP Base Layer Payload</th>
+                                <th>TCP Source Port</th>
+                                <th>TCP Destination Port</th>
+                                <th>TCP Seq Number</th>
+                                <th>TCP Ack Number</th>
+                                <th>TCP Flags</th>
                                 <th>Anomaly Score</th>
                             </tr>
                         </thead>
@@ -171,6 +159,40 @@
         <!--END CHARTS-->
     </div>
 
+    <div class="modal fade bd-example-modal-lg" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h2 class="modal-title" id="exampleModalLongTitle">Welcome to Anomalyze!<h2>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                About:
+                <pre>
+Anomalyze leverages AI to create an anomaly detection model to analyze live network traffic for <br>suspicous activity with real time visualizations.
+                </pre>
+                <br>
+                How It All Works:
+                <pre>
+By using your devices network interface, IPv4 TCP packets are captured and processed by the Anomalyze <br>trained model which then yeild the results. This model is trained to detect buffer overflow and SYN <br>flood attacks in network traffic with X amt of accuracy.
+                </pre>
+                <br>
+                How to Use:
+                <pre>
+In order to use Anomalyze first you must specify a destination IP address that you will faciliate <br>communication with. Once the "Start Session" button is pressed the packet caputre will begin and the <br>visualizations will be updated with the live data. When pressing the save session button, a JSON file <br>will be saved holding the information of the packet capture session. Pressing the stop session button <br>will discontinue the packet capture process between devices, <i>but note that does not stop communication <br>between these devices.</i>
+                </pre>
+                <br>
+                Enjoy your packet scanning experience!
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     <script>
         let verboseMode = false; // Track verbose mode state
         let payloadSizeData = []; // Array to store payload size data
@@ -185,214 +207,97 @@
         let bufferOverflowPayloadCount = 0
         
 
-        // function fetchData() {
-        //     $.ajax({
-        //         url: window.location.href, // Use the current URL
-        //         type: 'GET',
-        //         headers: {
-        //             'X-Requested-With': 'XMLHttpRequest' // Indicate this is an AJAX request
-        //         },
-        //         success: function(response) {
-        //             //! IF THE DATA IS NOT EMPTY THEN REFRESH
-        //             console.log("response" + response);
-        //             if (response.data && response.data.length > 0) {
-        //                 console.log("response data" + response.data);
-
-        //                 responseData = response.data; // Store the response data globally
-        //                 let tableBody = $('#data-table tbody');
-
-        //                 // Get the newest item (assuming it's the first item in the array)
-        //                 let newestItem = response.data[0];
-
-        //                 // Determine row class and animation based on anomaly score
-        //                 let rowClass = newestItem.anomaly_score === -1 ? 'normal' : 'anomaly';
-        //                 let animation = rowClass === 'normal' ? 'newNormalPacket 1s 1 normal' : 'newAnomalyPacket 1s 1 normal';
-
-        //                 // Prepend the newest item to the table
-        //                 tableBody.prepend(
-        //                     `<tr class="${rowClass}" style="animation: ${animation};">
-        //                         <td>${newestItem.ipv4data.type}</td>
-        //                         <td>${newestItem.ipv4data.source}</td>
-        //                         <td>${newestItem.ipv4data.destination}</td>
-        //                         <td>${newestItem.ipv4data.protocol}</td>
-        //                         <td>${newestItem.ipv4data.flags || 'None'}</td>
-        //                         <td>${newestItem.ipv4data.frag_offset}</td>
-        //                         <td>${newestItem.ipv4data.ihl}</td>
-        //                         <td>${newestItem.ipv4data.length}</td>
-        //                         <td>${newestItem.ipv4data.checksum}</td>
-        //                         <td>${newestItem.ipv4data.ttl}</td>
-        //                         <td>${newestItem.ipv4data.version}</td>
-        //                         <td>${newestItem.ipv4data.tos}</td>
-        //                         <td><pre>${newestItem.tcpdata.payload}</pre></td>
-        //                         <td><pre>${newestItem.ipv4data.base_layer?.Contents || ''}</pre></td>
-        //                         <td><pre>${newestItem.ipv4data.base_layer?.Payload || ''}</pre></td>
-        //                         <td><pre>${newestItem.ipv4data.timestamp}</pre></td>
-        //                         <td class="verbose hidden">${newestItem.tcpdata.source_ip}</td>
-        //                         <td class="verbose hidden">${newestItem.tcpdata.destination_ip}</td>
-        //                         <td class="verbose hidden">${newestItem.tcpdata.source_port}</td>
-        //                         <td class="verbose hidden">${newestItem.tcpdata.destination_port}</td>
-        //                         <td class="verbose hidden">${newestItem.tcpdata.sequence_number}</td>
-        //                         <td class="verbose hidden">${newestItem.tcpdata.acknowledgment_number}</td>
-        //                         <td class="verbose hidden">${newestItem.tcpdata.data_offset}</td>
-        //                         <td class="verbose hidden">${newestItem.tcpdata.flags}</td>
-        //                         <td class="verbose hidden">${newestItem.tcpdata.window_size}</td>
-        //                         <td class="verbose hidden">${newestItem.tcpdata.checksum}</td>
-        //                         <td class="verbose hidden">${newestItem.tcpdata.urgent_pointer}</td>
-        //                         <td class="verbose hidden"><pre>${newestItem.tcpdata.payload}</pre></td>
-        //                         <td class="verbose hidden"><pre>${newestItem.tcpdata.payload_hex}</pre></td>
-        //                         <td class="verbose hidden"><pre>${newestItem.tcpdata.timestamp}</pre></td>
-        //                         <td>${newestItem.anomaly_score}</td>
-        //                     </tr>`
-        //                 );
-
-        //                 // Update payload size and frequency data
-        //                 let payloadSize = newestItem.tcpdata.payload.length || 0;
-        //                 let timestamp = new Date(newestItem.ipv4data.timestamp);
-        //                 let timeString = timestamp.toLocaleTimeString(); // Format timestamp to display only time
-
-        //                 // Add new data to the arrays
-        //                 payloadSizeData.push(payloadSize);
-        //                 payloadFrequencyData.push(payloadSizeData.length); // Frequency is the count of payloads
-        //                 timeLabels.push(timeString);
-
-        //                 normalPayloadCount = 1
-        //                 synFloodPayloadCount = 2
-        //                 bufferOverflowPayloadCount = 3
-
-        //                 // Update the donut chart
-        //                 let chart = bb.generate({
-        //                     data: {
-        //                         columns: [
-        //                             ["Anomaly", newestItem.anomaly_normal_count.anomaly],
-        //                             ["Normal", newestItem.anomaly_normal_count.normal],
-        //                         ],
-        //                         type: "donut",
-        //                     },
-        //                     donut: {
-        //                         title: "Anomaly vs Normal Packets",
-        //                     },
-        //                     bindto: "#donut-chart",
-        //                 });
-
-        //                 // Update the charts
-        //                 updateCharts();
-        //             } else {
-        //                 // If no data is available, display a message
-        //                 // $('#data-table tbody').html('<tr><td colspan="30">No data available.</td></tr>');
-        //             }
-        //         },
-        //         error: function(xhr, status, error) {
-        //             console.error("AJAX request failed:", status, error);
-        //         }
-        //     });
-        // }
+   
        
         function fetchData() {
-    $.ajax({
-        url: window.location.href, // Use the current URL
-        type: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest' // Indicate this is an AJAX request
-        },
-        success: function(response) {
-            // Check if the response data is empty or unchanged
-            if (!response.data || response.data.length === 0 || JSON.stringify(response.data) === JSON.stringify(responseData)) {
-                console.log("No new data received.");
-                return; // Exit the function if no new data is available
-            }
+            $.ajax({
+                url: window.location.href, // Use the current URL
+                type: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest' // Indicate this is an AJAX request
+                },
+                success: function(response) {
+                    // Check if the response data is empty or unchanged
+                    if (!response.data || response.data.length === 0 || JSON.stringify(response.data) === JSON.stringify(responseData)) {
+                        console.log("No new data received.");
+                        return; // Exit the function if no new data is available
+                    }
 
-            console.log("response" + response);
-            if (response.data && response.data.length > 0) {
-                console.log("response data" + response.data);
+                        console.log("response" + response);
+                        if (response.data && response.data.length > 0) {
+                            console.log("response data" + response.data);
 
-                responseData = response.data; // Store the response data globally
-                let tableBody = $('#data-table tbody');
+                            responseData = response.data; // Store the response data globally
+                            let tableBody = $('#data-table tbody');
 
-                // Get the newest item (assuming it's the first item in the array)
-                let newestItem = response.data[0];
+                            // Get the newest item (assuming it's the first item in the array)
+                            let newestItem = response.data[0];
 
-                // Determine row class and animation based on anomaly score
-                let rowClass = newestItem.anomaly_score === -1 ? 'normal' : 'anomaly';
-                let animation = rowClass === 'normal' ? 'newNormalPacket 1s 1 normal' : 'newAnomalyPacket 1s 1 normal';
+                            // Determine row class and animation based on anomaly score
+                            let rowClass = newestItem.anomaly_score === -1 ? 'normal' : 'anomaly';
+                            let animation = rowClass === 'normal' ? 'newNormalPacket 1s 1 normal' : 'newAnomalyPacket 1s 1 normal';
 
-                // Prepend the newest item to the table
-                tableBody.prepend(
-                    `<tr class="${rowClass}" style="animation: ${animation};">
-                        <td>${newestItem.ipv4data.type}</td>
-                        <td>${newestItem.ipv4data.source}</td>
-                        <td>${newestItem.ipv4data.destination}</td>
-                        <td>${newestItem.ipv4data.protocol}</td>
-                        <td>${newestItem.ipv4data.flags || 'None'}</td>
-                        <td>${newestItem.ipv4data.frag_offset}</td>
-                        <td>${newestItem.ipv4data.ihl}</td>
-                        <td>${newestItem.ipv4data.length}</td>
-                        <td>${newestItem.ipv4data.checksum}</td>
-                        <td>${newestItem.ipv4data.ttl}</td>
-                        <td>${newestItem.ipv4data.version}</td>
-                        <td>${newestItem.ipv4data.tos}</td>
-                        <td><pre>${newestItem.tcpdata.payload}</pre></td>
-                        <td><pre>${newestItem.ipv4data.base_layer?.Contents || ''}</pre></td>
-                        <td><pre>${newestItem.ipv4data.base_layer?.Payload || ''}</pre></td>
-                        <td><pre>${newestItem.ipv4data.timestamp}</pre></td>
-                        <td class="verbose hidden">${newestItem.tcpdata.source_ip}</td>
-                        <td class="verbose hidden">${newestItem.tcpdata.destination_ip}</td>
-                        <td class="verbose hidden">${newestItem.tcpdata.source_port}</td>
-                        <td class="verbose hidden">${newestItem.tcpdata.destination_port}</td>
-                        <td class="verbose hidden">${newestItem.tcpdata.sequence_number}</td>
-                        <td class="verbose hidden">${newestItem.tcpdata.acknowledgment_number}</td>
-                        <td class="verbose hidden">${newestItem.tcpdata.data_offset}</td>
-                        <td class="verbose hidden">${newestItem.tcpdata.flags}</td>
-                        <td class="verbose hidden">${newestItem.tcpdata.window_size}</td>
-                        <td class="verbose hidden">${newestItem.tcpdata.checksum}</td>
-                        <td class="verbose hidden">${newestItem.tcpdata.urgent_pointer}</td>
-                        <td class="verbose hidden"><pre>${newestItem.tcpdata.payload}</pre></td>
-                        <td class="verbose hidden"><pre>${newestItem.tcpdata.payload_hex}</pre></td>
-                        <td class="verbose hidden"><pre>${newestItem.tcpdata.timestamp}</pre></td>
-                        <td>${newestItem.anomaly_score}</td>
-                    </tr>`
-                );
+                            // Prepend the newest item to the table
+                            tableBody.prepend(
+                                `<tr class="${rowClass}" style="animation: ${animation};">
+                                    <td><pre>${newestItem.ipv4data.timestamp}</pre></td>
+                                    <td> -> </td>
+                                    <td>${newestItem.ipv4data.length}</td>
+                                    <td>${newestItem.ipv4data.checksum}</td>
+                                    <td>${newestItem.ipv4data.ttl}</td>
+                                    <td><pre>${newestItem.tcpdata.payload}</pre></td>
+                                    <td><pre>${newestItem.tcpdata.base_layer?.Contents || ''}</pre></td>
+                                    <td><pre>${newestItem.tcpdata.base_layer?.Payload || ''}</pre></td>
+                                    <td>${newestItem.tcpdata.source_port}</td>
+                                    <td>${newestItem.tcpdata.destination_port}</td>
+                                    <td>${newestItem.tcpdata.sequence_number}</td>
+                                    <td>${newestItem.tcpdata.acknowledgment_number}</td>
+                                    <td>${newestItem.tcpdata.flags}</td>
+                                    <td>${rowClass}</td>
+                                </tr>`
+                            );
 
-                // Update payload size and frequency data
-                let payloadSize = newestItem.tcpdata.payload.length || 0;
-                let timestamp = new Date(newestItem.ipv4data.timestamp);
-                let timeString = timestamp.toLocaleTimeString(); // Format timestamp to display only time
+                            // Update payload size and frequency data
+                            let payloadSize = newestItem.tcpdata.payload.length || 0;
+                            let timestamp = new Date(newestItem.ipv4data.timestamp);
+                            let timeString = timestamp.toLocaleTimeString(); // Format timestamp to display only time
 
-                // Add new data to the arrays
-                payloadSizeData.push(payloadSize);
-                payloadFrequencyData.push(payloadSizeData.length); // Frequency is the count of payloads
-                timeLabels.push(timeString);
+                            // Add new data to the arrays
+                            payloadSizeData.push(payloadSize);
+                            payloadFrequencyData.push(payloadSizeData.length); // Frequency is the count of payloads
+                            timeLabels.push(timeString);
 
-                normalPayloadCount = 1
-                synFloodPayloadCount = 2
-                bufferOverflowPayloadCount = 3
+                            normalPayloadCount = 1
+                            synFloodPayloadCount = 2
+                            bufferOverflowPayloadCount = 3
 
-                // Update the donut chart
-                let chart = bb.generate({
-                    data: {
-                        columns: [
-                            ["Anomaly", newestItem.anomaly_normal_count.anomaly],
-                            ["Normal", newestItem.anomaly_normal_count.normal],
-                        ],
-                        type: "donut",
+                            // Update the donut chart
+                            let chart = bb.generate({
+                                data: {
+                                    columns: [
+                                        ["Anomaly", newestItem.anomaly_normal_count.anomaly],
+                                        ["Normal", newestItem.anomaly_normal_count.normal],
+                                    ],
+                                    type: "donut",
+                                },
+                                donut: {
+                                    title: "Anomaly vs Normal Packets",
+                                },
+                                bindto: "#donut-chart",
+                            });
+
+                            // Update the charts
+                            updateCharts();
+                        } else {
+                            // If no data is available, display a message
+                            // $('#data-table tbody').html('<tr><td colspan="30">No data available.</td></tr>');
+                        }
                     },
-                    donut: {
-                        title: "Anomaly vs Normal Packets",
-                    },
-                    bindto: "#donut-chart",
+                    error: function(xhr, status, error) {
+                        console.error("AJAX request failed:", status, error);
+                    }
                 });
-
-                // Update the charts
-                updateCharts();
-            } else {
-                // If no data is available, display a message
-                // $('#data-table tbody').html('<tr><td colspan="30">No data available.</td></tr>');
             }
-        },
-        error: function(xhr, status, error) {
-            console.error("AJAX request failed:", status, error);
-        }
-    });
-}
 
 
         // Function to update the charts
@@ -566,6 +471,31 @@
             $('#toggle-verbose-btn').click(toggleVerboseMode);
             //save session data when save button is clicked
             $('#save-session-btn').click(saveSession);
+        });
+
+
+        document.getElementById('startPacketScan').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const destIP = document.getElementById('destIPAddr').value;
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            fetch("{% url 'start_packet_scan' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    dest_ip: destIP
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
         });
     </script>
 </body>
