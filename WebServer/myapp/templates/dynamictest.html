@@ -99,7 +99,7 @@
                 ip address
             </div>
             <div class="col-10">
-                <div class="table-responsive overflow-scroll" style="max-width: 3000px; max-height: 600px;">
+                <div class="table-responsive overflow-scroll" style="max-height: 600px;">
                     <table id="data-table" class="table">
                         <thead class="thead-dark">
                             <tr>
@@ -135,24 +135,27 @@
         </div>
     </div>
         <!--BEGIN CHARTS-->
-        <div class="row mt-4">
-            <div class="col-2" id="donut-chart"></div>
-            <div class="col-4">
+        <div class="row justify-content-between ml-1 mr-1 mt-4">
+            <div class="col-2" id="donut-chart" style=  "display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;"></div>
+            <div class="col-3">
                 <h2>Payload Size over Time</h2>
                 <div>
                     <canvas id="myChart"></canvas>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-3">
                 <h2>Payload Frequency Over Time</h2>
                 <div>
                     <canvas id="myChart2"></canvas>
                 </div>
             </div>
-            <div class="col-2">
+            <div class="col-3">
                 <h2>Packet Type</h2>
                 <div>
-                    <canvas id="myStyledBarChart" width="370" height="160"></canvas>
+                    <canvas id="myStyledBarChart"></canvas>
                 </div>
             </div>
         </div>
@@ -281,7 +284,8 @@ In order to use Anomalyze first you must specify a destination IP address that y
                                     type: "donut",
                                 },
                                 donut: {
-                                    title: "Anomaly vs Normal Packets",
+                                    title: "Anomaly vs \n Normal Packets",
+                                    padding: 0,
                                 },
                                 bindto: "#donut-chart",
                             });
@@ -369,6 +373,7 @@ In order to use Anomalyze first you must specify a destination IP address that y
                 },
                 donut: {
                     title: "Anomaly\nvs.\nNormal",
+                    padding: 0,
                 },
                 bindto: "#donut-chart",
             });
