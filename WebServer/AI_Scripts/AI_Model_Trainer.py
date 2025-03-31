@@ -221,13 +221,13 @@ class DataPreprocessor:
         self.df = df
 
     def preprocess_df(self):
-        # Feature selection - removing irrelevant cols
+        # Remove cols with missing data
         cols_to_remove = [
             "ipv4data.type", "ipv4data.protocol", "tcpdata.urgent_pointer", "tcpdata.timestamp", "ipv4data.version",
             "tcpdata.destination_ip", "tcpdata.source_ip", "ipv4data.flags", "ipv4data.options", "ipv4data.padding"
         ]
-        
         self.df.drop(cols_to_remove, axis=1, inplace=True, errors='ignore')
+        # Rename cols and organizing sequence for readability
         new_col_names = {
             'ipv4data.source': 'Source', 'ipv4data.destination': 'Destination', 'tcpdata.flags':'Flags','ipv4data.frag_offset': 'FragOffset','ipv4data.ihl': 'IHL', 
             'ipv4data.length': 'Packet_Length', 'ipv4data.base_layer.Contents': 'Contents', 'ipv4data.base_layer.Payload': 'Payload',
@@ -242,6 +242,7 @@ class DataPreprocessor:
             'SourcePort', 'DestinationPort', 'SeqNum', 'AckNum', 'DataOffset','WindowSize', 'TCPChecksum', 'TCPPayload', 'PayloadHex'
         ]
         self.df = self.df[[col for col in new_order if col in self.df.columns]]
+        # Convert Time col to datetime format
         self.df['Time'] = pd.to_datetime(self.df['Time'])
         # Fill missing values with appropriate defaults
         self.df.fillna({
@@ -261,11 +262,14 @@ class DataPreprocessor:
             'WindowSize': self.df['WindowSize'].median(),
             'TCPChecksum': 0
         }, inplace=True)
-
+        
+        # Preprocessing: convert categorical data to numerical data
         self.df['Source'] = self.df['Source'].apply(self.convert_IP_to_int)
         self.df['Destination'] = self.df['Destination'].apply(self.convert_IP_to_int)
         self.df['SourcePort'] = self.df['SourcePort'].apply(self.extract_port_number)
         self.df['DestinationPort'] = self.df['DestinationPort'].apply(self.extract_port_number)
+        
+        # Feature Engineering: adding new relevant features
         self.df['TCPPayload_Length'] = self.df['TCPPayload'].apply(lambda x: len(str(x)) if pd.notna(x) else 0)
         self.df['Payload_Length'] = self.df['Payload'].apply(lambda x: len(str(x)) if pd.notna(x) else 0)
         self.df['Payload_Entropy'] = self.df['Payload'].apply(self.calculate_entropy)
@@ -279,18 +283,20 @@ class DataPreprocessor:
         # Drop original 'Flags' column after encoding
         self.df.drop(columns=['Flags'], inplace=True)
         #print(self.df.iloc[:, -8:].value_counts())
-    
+        
+        # Remove another set of irrelevant cols
         cols_to_prep_later = ['Contents', 'Payload', 'IPPayload', 'TCPPayload', 'PayloadHex']
         self.df.drop(cols_to_prep_later, axis=1, inplace=True, errors='ignore')
         cols_to_ignore = ['Source', 'Destination', 'IHL', 'FragOffset', 'TTL', 'TOS', 'AckNum', 'DataOffset']
         self.df.drop(cols_to_ignore, axis=1, inplace=True, errors='ignore')
         
+        # Convert datetime to seconds from start and engineer new feature Delta Time
         self.df["Time"] = (self.df["Time"] - self.df["Time"].min()).dt.total_seconds()
         self.df["Delta Time"] = self.df["Time"].diff().fillna(0)
 
         return self.df
     
-
+    # Calculates entropy of each value in the Payload column
     @staticmethod
     def calculate_entropy(payload):
         if not isinstance(payload, str) or len(payload) == 0:
@@ -298,6 +304,7 @@ class DataPreprocessor:
         value, counts = np.unique(list(payload), return_counts=True)
         return entropy(counts, base=2)
 
+    # Use ip_address to convert categorical value to numerical value
     @staticmethod
     def convert_IP_to_int(ip):
         try:
@@ -305,10 +312,12 @@ class DataPreprocessor:
         except ValueError:
             return -1
 
+    # Extract numerical value only from port number
     @staticmethod
     def extract_port_number(value):
         return int(''.join(filter(str.isdigit, str(value))))
-
+    
+    # Generate rolling stats for a given feature (mean, std, min, max)
     @staticmethod
     def add_rolling_stats(df, cols, window=3):
         for col in cols:
@@ -332,7 +341,45 @@ class AnomalyDetector:
         y_scaled = self.scaler.transform(y)
         predictions_lst = self.model.predict(y_scaled)
         return predictions_lst
+    
+    def risk_scoring(self, json_input, low_threshold=30, high_threshold=70):
+        if isinstance(json_input, str):
+            if os.path.exists(json_input):  # Check if it's a file path
+                json_df = DataPreprocessor(DataLoader.transform_json_to_df(json_input)).preprocess_df()
+        elif isinstance(json_input, dict):       
+            #print(f'\n\n\n\n\n{json_input}\n\n\n\n')
+            json_df = pd.json_normalize(json_input)
+        else:
+            raise ValueError("Unsupported input type. Must be a DataFrame, JSON file path, or JSON text object.")
+        
+        preprocessor = DataPreprocessor(json_df)
+        df = preprocessor.preprocess_df()
+        y = df.drop(columns=["Time", "true_label"], errors='ignore')
+        y_scaled = self.scaler.transform(y)  # Transform using the trained scaler
+        anomaly_scores = self.model.decision_function(y_scaled)  # Decision function for anomaly scoring
+        predictions = self.model.predict(y_scaled)  # 1 for normal, -1 for anomaly
 
+        # Normalize the anomaly scores to a scale of 0-100
+        min_score, max_score = min(anomaly_scores), max(anomaly_scores)
+        risk_scores = (anomaly_scores - min_score) / (max_score - min_score) * 100  # Scale to [0, 100]
+        
+        # Apply risk labeling based on the defined thresholds
+        risk_labels = []
+        for score in risk_scores:
+            if score < low_threshold:
+                risk_labels.append("low_risk")
+            elif score >= low_threshold and score <= high_threshold:
+                risk_labels.append("medium_risk")
+            else:
+                risk_labels.append("high_risk")
+
+        # Prepare the output DataFrame with results
+        results_df = pd.DataFrame({
+            "Anomaly Score": predictions,
+            "Risk Label": risk_labels  # New column for risk labels
+        })
+
+        return results_df
 
     def predict(self, json_input):
         # if isinstance(json_input, pd.DataFrame):
@@ -352,6 +399,7 @@ class AnomalyDetector:
         y_scaled = self.scaler.transform(y)
         predictions = self.model.predict(y_scaled)
         return predictions
+        
     '''
     def calculate_true_labels(self, test_df):
         syn_flood = ((test_df['SYN']==1) & (test_df['Payload_Length'] <=1460))
@@ -378,38 +426,22 @@ if __name__ == '__main__':
     test_df = test_df.dropna()
     detector = AnomalyDetector()
     detector.load_and_train_model(train_df)
-    test_results = detector.predict_model(test_df)
-    test_results = pd.Series(test_results)
-    test_results = test_results.map(lambda x: 0 if x == -1 else 1)
-    true_labels = detector.calculate_true_labels(test_df)
-    true_labels = np.array(true_labels)
-    test_results = np.array(test_results).flatten() 
+    test_results = detector.risk_scoring(test_df)
+    print(test_results)
+    print(test_results['Anomaly Score'].value_counts())
+    print(test_results['Risk Label'].value_counts())
+    # # Debug why AI predicts 0 only
+    # #print("True labels distribution:\n", pd.Series(true_labels).value_counts())
+    # #print("Predicted labels distribution:\n", pd.Series(test_results).value_counts())
     
-    # Debug why AI predicts 0 only
-    print("True labels distribution:\n", pd.Series(true_labels).value_counts())
-    print("Predicted labels distribution:\n", pd.Series(test_results).value_counts())
-    
-    print(classification_report(true_labels, test_results))
-    print(confusion_matrix(true_labels, test_results)) # lots of false negatives
-    '''
-    train_df = train_df.dropna()
-    test_df = test_df.dropna()
-    print("Train columns:", len(train_df.columns))
-    print("Test columns:", len(test_df.columns))
-    # Contamination values to test
-    contamination_values = [0.01, 0.05, 0.1, 0.2]
-    anomaly_scores = []
-    for contamination in contamination_values:
-        detector = AnomalyDetector(contamination=contamination)
-        detector.load_and_train_model(train_df)
-        test_df = test_df.drop(columns=["anomaly_score"], errors="ignore")
-        test_results = detector.predict_model(test_df)
-        test_results = pd.Series(test_results).map(lambda x: 0 if x == 1 else 1)
-        print("Contamination: ", contamination)
-        print(test_results.value_counts().get(1, 0))
-    '''
-    # 6. Save the Model as a .pkl file
-    #joblib.dump(detector, "network_packet_classifier.joblib")
+    # #print(classification_report(true_labels, test_results))
+    # #print(confusion_matrix(true_labels, test_results)) # lots of false negatives
+    # print(test_results)
+    # risk_df = detector.risk_scoring(test_df)
+    # #print(risk_df)
+    # print(risk_df[risk_df['Anomaly Label']!='Normal'])
+    # # 6. Save the Model as a .pkl file
+    # #joblib.dump(detector, "network_packet_classifier.joblib")
     
     
     
