@@ -185,7 +185,7 @@
             <div class="col-3">
                 <h2>Packet Type</h2>
                 <div>
-                    <canvas id="myStyledBarChart" ></canvas>
+                    <canvas id="myStyledBarChart" width="370" height="160"></canvas>
                 </div>
             </div>
         </div>
@@ -374,7 +374,8 @@
                                     type: "donut",
                                 },
                                 donut: {
-                                    title: "Anomaly vs Normal Packets",
+                                    title: "Anomaly vs \n Normal Packets",
+                                    padding: 0,
                                 },
                                 bindto: "#donut-chart",
                             });
@@ -388,7 +389,7 @@
                             updateCharts();
                         } else {
                             // If no data is available, display a message
-                            $('#data-table tbody').html('<tr><td colspan="30">No data available.</td></tr>');
+                            // $('#data-table tbody').html('<tr><td colspan="30">No data available.</td></tr>');
                         }
                     },
                     error: function(xhr, status, error) {
@@ -400,21 +401,18 @@
 
         // Function to update the charts
         function updateCharts() {
-            if (myChart) {
+            if (myChart && myChart2 && horizontalBarChart) {
                 myChart.data.labels = timeLabels;
                 myChart.data.datasets[0].data = payloadSizeData;
                 myChart.update();
-            }
 
-            if (myChart2) {
                 myChart2.data.labels = timeLabels;
                 myChart2.data.datasets[0].data = payloadFrequencyData;
                 myChart2.update();
-            }
 
-            if (horizontalBarChart) {
-                horizontalBarChart.data.datasets[0].data = barChartData.counts;
-                horizontalBarChart.update();
+                horizontalBarChart.data[0] = 10
+                horizontalBarChart.data[1] = 10
+                horizontalBarChart.data[2] = 10
             }
         }
 
@@ -460,6 +458,7 @@
                 },
                 donut: {
                     title: "Anomaly\nvs.\nNormal",
+                    padding: 0,
                 },
                 bindto: "#donut-chart",
             });
@@ -530,8 +529,8 @@
 
             horizontalBarChart = new Chart(document.getElementById('myStyledBarChart').getContext('2d'), {
                     type: 'bar',
-                    data: {labels: ['Normal', 'Buffer Overflow',
-                             'Syn-Flood'],
+                    data: {labels: ['Low Risk', 'Medium Risk',
+                             'High Risk'],
                     datasets: [{
                         label: ['Normal', 'Buffer Overflow',
                         'Syn-Flood'],

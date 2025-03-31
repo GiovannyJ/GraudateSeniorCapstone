@@ -1,0 +1,13 @@
+Issue: AI model is not predicting any anomalies 
+Risk: Actual malicious packets are going undetected bc model is predicting false negatives.
+Possible Causes: 
+-imbalanced dataset (true but it's supposed to be that way for iForest),
+-thresholding issue (experiment w/ contamination)
+-model bias or overfitting (try regulazation or improve feature engineering)
+
+Adding risk scoring:
+Use decision function which returns anomaly score
+Higher scores indicate normality, while lower scores indicate anomalies.
+Come up with plan to determine threshold
+
+
