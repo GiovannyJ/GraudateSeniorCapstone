@@ -79,12 +79,51 @@ end_timer(ai_training_start, "ai_training")
 
 results = ""
 live_data = []
-packet_anomaly_count_dict = {"anomaly": 0, "normal": 0}
+packet_anomaly_count_dict = {"anomaly": 0, "normal": 0, 
+                             "high_risk": 0, "medium_risk": 0, "low_risk": 0}
 
 def random_one():
     return int(random.choice([1, -1]))
 
 @csrf_exempt
+# def ipv4_data(request):
+#     global live_data  # Access the global variable
+    
+#     request_loading_start = start_timer()
+#     if request.method == "POST":
+#         try:
+#             # Parse incoming JSON data
+#             data = json.loads(request.body.decode("utf-8"))
+#             #! THIS IS WHERE THE AI CODE WILL LIVE AND MUTATE THE DATA
+#             if data:
+#                 end_timer(request_loading_start, "request_loading")
+#                 request_processing = start_timer()
+#                 results = detector.predict(data)
+                
+#                 data["anomaly_score"] = int(results[0])
+#                 # data["anomaly_score"] = random_one()
+                
+#                 if data["anomaly_score"] == 1:
+#                     packet_anomaly_count_dict["anomaly"] += 1
+#                     print("\n\n\nTHIS IS AN ANOMLY\n\n\n")
+#                 else:
+#                     packet_anomaly_count_dict["normal"] += 1
+#                     print("\n\n\nTHIS IS NORMAL\n\n\n")
+#                 data["anomaly_normal_count"] = packet_anomaly_count_dict
+#                 end_timer(request_processing, "request_processing")
+                
+#                 # print(data)
+
+#             live_data.append(data)
+#             # print(f"\nTIMINGS: \n {get_timings()}  \n\n\n")
+            
+#             return JsonResponse({"message": "IPv4 data received successfully!"}, status=200)
+        
+#         except json.JSONDecodeError:
+#             return JsonResponse({"error": "Invalid JSON"}, status=400)
+    
+#     return JsonResponse({"error": "Invalid request method"}, status=405)
+
 def ipv4_data(request):
     global live_data  # Access the global variable
     
@@ -97,23 +136,26 @@ def ipv4_data(request):
             if data:
                 end_timer(request_loading_start, "request_loading")
                 request_processing = start_timer()
-                results = detector.predict(data)
+                results_df = detector.risk_scoring(data)
                 
-                data["anomaly_score"] = int(results[0])
-                # data["anomaly_score"] = random_one()
+                if not results_df.empty:
+                    data["anomaly_score"] = int(results_df.iloc[0]["Anomaly Score"])  # Get prediction
+                    data["risk_label"] = results_df.iloc[0]["Risk Label"]  # Get risk label
                 
                 if data["anomaly_score"] == 1:
                     packet_anomaly_count_dict["anomaly"] += 1
-                    print("\n\n\nTHIS IS AN ANOMLY\n\n\n")
+                    print("\n\n\nTHIS IS AN ANOMALY\n\n\n")
                 else:
                     packet_anomaly_count_dict["normal"] += 1
                     print("\n\n\nTHIS IS NORMAL\n\n\n")
-                data["anomaly_normal_count"] = packet_anomaly_count_dict
-                end_timer(request_processing, "request_processing")
+                risk_label = data['risk_label']
+                if risk_label in packet_anomaly_count_dict:
+                    packet_anomaly_count_dict[risk_label] += 1
                 
-                # print(data)
-
+                data["anomaly_normal_count"] = packet_anomaly_count_dict
+            end_timer(request_processing, "request_processing")
             live_data.append(data)
+            print("Live Data: ", data)
             # print(f"\nTIMINGS: \n {get_timings()}  \n\n\n")
             
             return JsonResponse({"message": "IPv4 data received successfully!"}, status=200)

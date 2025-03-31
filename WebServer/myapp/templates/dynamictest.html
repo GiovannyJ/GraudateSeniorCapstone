@@ -286,34 +286,40 @@ In order to use Anomalyze first you must specify a destination IP address that y
                                 bindto: "#donut-chart",
                             });
 
-                            // Update the charts
-                            updateCharts();
-                        } else {
-                            // If no data is available, display a message
-                            // $('#data-table tbody').html('<tr><td colspan="30">No data available.</td></tr>');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("AJAX request failed:", status, error);
-                    }
-                });
+                // Update the charts
+                updateCharts(newestItem);
+            } else {
+                // If no data is available, display a message
+                // $('#data-table tbody').html('<tr><td colspan="30">No data available.</td></tr>');
             }
+        },
+        error: function(xhr, status, error) {
+            console.error("AJAX request failed:", status, error);
+        }
+    });
+}
 
 
         // Function to update the charts
-        function updateCharts() {
+        function updateCharts(newestItem) {
             if (myChart && myChart2 && horizontalBarChart) {
                 myChart.data.labels = timeLabels;
                 myChart.data.datasets[0].data = payloadSizeData;
                 myChart.update();
-
+                
                 myChart2.data.labels = timeLabels;
                 myChart2.data.datasets[0].data = payloadFrequencyData;
                 myChart2.update();
 
-                horizontalBarChart.data[0] = 10
-                horizontalBarChart.data[1] = 10
-                horizontalBarChart.data[2] = 10
+                console.log(newestItem);
+                console.log(newestItem.anomaly_normal_count);
+
+                horizontalBarChart.data.datasets[0].data = [
+                    newestItem.anomaly_normal_count.low_risk,      // Low Risk
+                    newestItem.anomaly_normal_count.medium_risk,   // Medium Risk
+                    newestItem.anomaly_normal_count.high_risk      // High Risk
+                ];
+                horizontalBarChart.update();
             }
         }
 
@@ -433,8 +439,8 @@ In order to use Anomalyze first you must specify a destination IP address that y
 
             horizontalBarChart = new Chart(document.getElementById('myStyledBarChart').getContext('2d'), {
                     type: 'bar',
-                    data: {labels: ['Normal', 'Buffer Overflow',
-                             'Syn-Flood'],
+                    data: {labels: ['Low Risk', 'Medium Risk',
+                             'High Risk'],
                     datasets: [{
                         label: 'Styled Bar Chart',
                         data: [normalPayloadCount, synFloodPayloadCount, bufferOverflowPayloadCount],
