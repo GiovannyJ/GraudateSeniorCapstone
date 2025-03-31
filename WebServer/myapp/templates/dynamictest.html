@@ -57,6 +57,41 @@
             color: white; /* Match the header text color */
             z-index: 1; /* Ensure the header stays above the table body */
         }
+
+        .modal-body {
+            padding: 20px;
+        }
+        .modal-section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .modal-section:last-child {
+            border-bottom: none;
+        }
+        .usage-mode {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .important-notes {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+        }
+        .keyword {
+            font-weight: bold;
+            color: #0d6efd;
+            background-color: #e7f1ff;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        .badge {
+            font-size: 0.9em;
+            padding: 5px 10px;
+        }
     </style>
 </head>
 <body>
@@ -65,24 +100,25 @@
             <button type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModalCenter">I</button>
         </h1>
         
-        
-        
-        <div class=" mb-3">
+        <div class="mb-3">
             <div class="row">
-                <div class="col-auto">
+                <div class="col-1">
                     <button id="" class="btn btn-primary mb-3" onclick="saveSession()">Save Session</button>
                 </div>
-                <div class="col-auto">
-                    <button id="" class="btn btn-danger mb-3" onclick="alert('session stopped')">Stop Session</button>
-                </div>
-                <div class="col-auto">
-                    <form class="form-inline" id="startPacketScan" method="POST" action="{% url 'start_packet_scan' %}">
+                <div class="col-4">
+                    <form class="form-inline" id="packetScanForm">
                         {% csrf_token %}
                         <div class="form-group">
                             <input type="text" id="destIPAddr" name="dest_ip" class="form-control" placeholder="Destination IP Address">
                         </div>
                         <div class="col-auto">
-                            <button class="btn btn-success" type="submit" id="search">Start Session</button>
+                            <button type="button" class="btn btn-success" onclick="startPacketScan()">Start Session</button>
+                        </div>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-info" onclick="startSimulatedEnv()">Start Simulated Environment</button>
+                        </div>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-danger" onclick="stopPacketScan()">Stop Session</button>
                         </div>
                     </form>
                 </div>
@@ -92,14 +128,10 @@
         <div class="row ml-1 mr-1 mt-4" style="height: 600px">
             
             <div class="col-1" style="background-color:cornflowerblue;">
-                Source
-                <br>
-                computer here
-                <br>
-                ip address
+                <input class="mt-3" id="source_IP" name=source_IP" type="text" value="" placeholder="Source Device IP" readonly>
             </div>
             <div class="col-10">
-                <div class="table-responsive overflow-scroll" style="max-width: 3000px; max-height: 600px;">
+                <div class="table-responsive overflow-scroll" style="max-height: 600px;">
                     <table id="data-table" class="table">
                         <thead class="thead-dark">
                             <tr>
@@ -126,72 +158,119 @@
                 </div>
             </div>
             <div class="col-1" style="background-color: crimson;">
-                Destination
-                <br>
-                computer here
-                <br>
-                ip address
+                <input class="mt-3" id="destination_IP" name=destination_IP" type="text" value="" placeholder="Destination Device IP" readonly>
+                
+                <input class="mt-4" id="destination_suspicion_lvl" name="destination_suspicion_lvl" type="text" value="" placeholder="Not Suspicious" readonly> <!--MAKE LOGIC SO THAT THE MORE TRAFFIC THATS WEIRD THE LABEL CHANGES(Not Suspicious, Suspicious, Dangerous)-->
             </div>
         </div>
     </div>
         <!--BEGIN CHARTS-->
-        <div class="row mt-4">
-            <div class="col-2" id="donut-chart"></div>
-            <div class="col-4">
+        <div class="row justify-content-between ml-1 mr-1 mt-4">
+            <div class="col-2" id="donut-chart" style=  "display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;"></div>
+            <div class="col-3">
                 <h2>Payload Size over Time</h2>
                 <div>
                     <canvas id="myChart"></canvas>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-3">
                 <h2>Payload Frequency Over Time</h2>
                 <div>
                     <canvas id="myChart2"></canvas>
                 </div>
             </div>
-            <div class="col-2">
+            <div class="col-3">
                 <h2>Packet Type</h2>
                 <div>
-                    <canvas id="myStyledBarChart" width="370" height="160"></canvas>
+                    <canvas id="myStyledBarChart" ></canvas>
                 </div>
             </div>
         </div>
         <!--END CHARTS-->
     </div>
 
-    <div class="modal fade bd-example-modal-lg" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+
+
+      <div class="modal fade bd-example-modal-lg" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h2 class="modal-title" id="exampleModalLongTitle">Welcome to Anomalyze!<h2>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="exampleModalLongTitle">Welcome to Anomalyze!</h2>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-section">
+                        <h4><strong>About Anomalyze</strong></h4>
+                        <p>
+                            Anomalyze leverages <span class="keyword">AI-powered anomaly detection</span> to analyze live network traffic for 
+                            <span class="keyword">suspicious activity</span> with <span class="keyword">real-time visualizations</span>.
+                        </p>
+                    </div>
+    
+                    <div class="modal-section">
+                        <h4><strong>How It Works</strong></h4>
+                        <p>
+                            Using your device's network interface, Anomalyze:
+                            <ul>
+                                <li>Captures <span class="keyword">IPv4 TCP packets</span> in real-time</li>
+                                <li>Processes traffic through our <span class="keyword">trained AI model</span></li>
+                                <li>Detects <span class="keyword">Buffer Overflow</span> and <span class="keyword">SYN Flood attacks</span></li>
+                                <li>Provides results with <span class="keyword"> X% accuracy</span></li>
+                            </ul>
+                        </p>
+                    </div>
+    
+                    <div class="modal-section">
+                        <h4><strong>How to Use</strong></h4>
+                        <div class="usage-mode">
+                            <h5><span class="badge badge-info">1. Simulated Environment</span></h5>
+                            <p>
+                                Perfect for testing and demonstration:
+                                <ul>
+                                    <li>Pre-configured with <span class="keyword">randomized attacks</span> and <span class="keyword">normal traffic</span></li>
+                                    <li>Includes <span class="keyword">Buffer Overflow</span> and <span class="keyword">SYN Flood</span> scenarios</li>
+                                    <li>Launch with: <button class="btn btn-s btn-info" disabled>Start Simulated Environment</button></li>
+                                </ul>
+                            </p>
+                        </div>
+    
+                        <div class="usage-mode">
+                            <h5><span class="badge badge-success">2. Live Monitoring</span></h5>
+                            <p>
+                                For real-world network analysis:
+                                <ol>
+                                    <li>Enter <span class="keyword">target IP address</span></li>
+                                    <li>Click <button class="btn btn-s btn-success" disabled>Start Session</button></li>
+                                </ol>
+                                The system will monitor all traffic between your device and the specified IP.
+                            </p>
+                        </div>
+    
+                        <div class="important-notes">
+                            <h5><strong>Important Controls</strong></h5>
+                            <p>
+                                <button class="btn btn-s btn-danger" disabled>Stop Session</button> - Ends packet scanning 
+                                <i>(does not terminate actual network communication)</i>
+                            </p>
+                            <p>
+                                <button class="btn btn-s btn-primary" disabled>Save Session</button> - Exports capture data as 
+                                <span class="keyword">JSON file</span> for later analysis
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
             </div>
-            <div class="modal-body">
-                About:
-                <pre>
-Anomalyze leverages AI to create an anomaly detection model to analyze live network traffic for <br>suspicous activity with real time visualizations.
-                </pre>
-                <br>
-                How It All Works:
-                <pre>
-By using your devices network interface, IPv4 TCP packets are captured and processed by the Anomalyze <br>trained model which then yeild the results. This model is trained to detect buffer overflow and SYN <br>flood attacks in network traffic with X amt of accuracy.
-                </pre>
-                <br>
-                How to Use:
-                <pre>
-In order to use Anomalyze first you must specify a destination IP address that you will faciliate <br>communication with. Once the "Start Session" button is pressed the packet caputre will begin and the <br>visualizations will be updated with the live data. When pressing the save session button, a JSON file <br>will be saved holding the information of the packet capture session. Pressing the stop session button <br>will discontinue the packet capture process between devices, <i>but note that does not stop communication <br>between these devices.</i>
-                </pre>
-                <br>
-                Enjoy your packet scanning experience!
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-          </div>
         </div>
-      </div>
+    </div>
+    
 
     <script>
         let verboseMode = false; // Track verbose mode state
@@ -202,13 +281,13 @@ In order to use Anomalyze first you must specify a destination IP address that y
         let horizontalBarChart
         let responseDataArrSize = 0
         let responseData = []
-        let normalPayloadCount = 0
-        let synFloodPayloadCount = 0
-        let bufferOverflowPayloadCount = 0
+       
+        let barChartData = {
+            labels: ['Normal', 'Buffer Overflow', 'Syn-Flood'],
+            counts: [0, 0, 0]  // Initialize all counts to 0
+        };
         
 
-   
-       
         function fetchData() {
             $.ajax({
                 url: window.location.href, // Use the current URL
@@ -267,9 +346,23 @@ In order to use Anomalyze first you must specify a destination IP address that y
                             payloadFrequencyData.push(payloadSizeData.length); // Frequency is the count of payloads
                             timeLabels.push(timeString);
 
-                            normalPayloadCount = 1
-                            synFloodPayloadCount = 2
-                            bufferOverflowPayloadCount = 3
+
+                            //! BASE OFF OF TRUE LABELS IN FUTURE                            
+                            if (rowClass === 'normal') {
+                                barChartData.counts[0] += 10;  
+                            } else {
+                                barChartData.counts[1] += 10;
+                                barChartData.counts[2] += 10;
+                            }
+
+                            // if(newestItem.trueLabel === 'Normal'){
+                            //     barChartData.counts[0] += 10;  
+                            // }else if(newestItem.trueLabel === 'BufferOverFlow'){
+                            //     barChartData.counts[1] += 10;
+                            // }
+                            // else if(newestItem.trueLabel === 'SynFlood'){
+                            //     barChartData.counts[2] += 10;
+                            // }
 
                             // Update the donut chart
                             let chart = bb.generate({
@@ -286,11 +379,16 @@ In order to use Anomalyze first you must specify a destination IP address that y
                                 bindto: "#donut-chart",
                             });
 
+                            if(newestItem.anomaly_normal_count.anomaly > newestItem.anomaly_normal_count.normal){
+                                document.getElementById('destination_suspicion_lvl').value = "Not Normal";
+                                // document.getElementById('destination_suspicion_lvl').value = "Very Suspicious";
+                            }
+
                             // Update the charts
                             updateCharts();
                         } else {
                             // If no data is available, display a message
-                            // $('#data-table tbody').html('<tr><td colspan="30">No data available.</td></tr>');
+                            $('#data-table tbody').html('<tr><td colspan="30">No data available.</td></tr>');
                         }
                     },
                     error: function(xhr, status, error) {
@@ -302,29 +400,28 @@ In order to use Anomalyze first you must specify a destination IP address that y
 
         // Function to update the charts
         function updateCharts() {
-            if (myChart && myChart2 && horizontalBarChart) {
+            if (myChart) {
                 myChart.data.labels = timeLabels;
                 myChart.data.datasets[0].data = payloadSizeData;
                 myChart.update();
+            }
 
+            if (myChart2) {
                 myChart2.data.labels = timeLabels;
                 myChart2.data.datasets[0].data = payloadFrequencyData;
                 myChart2.update();
+            }
 
-                horizontalBarChart.data[0] = 10
-                horizontalBarChart.data[1] = 10
-                horizontalBarChart.data[2] = 10
+            if (horizontalBarChart) {
+                horizontalBarChart.data.datasets[0].data = barChartData.counts;
+                horizontalBarChart.update();
             }
         }
 
-        // Function to toggle verbose mode
-        function toggleVerboseMode() {
-            verboseMode = !verboseMode;
-            $('.verbose').toggleClass('hidden');
-            $('#toggle-verbose-btn').text(verboseMode ? 'Hide Details' : 'Show Details');
-        }
+        
+    
 
-                // Function to save the session data to a file
+        // Function to save the session data to a file
         function saveSession() {
             if (responseData.length === 0) {
                 alert("No data to save!");
@@ -436,21 +533,22 @@ In order to use Anomalyze first you must specify a destination IP address that y
                     data: {labels: ['Normal', 'Buffer Overflow',
                              'Syn-Flood'],
                     datasets: [{
-                        label: 'Styled Bar Chart',
-                        data: [normalPayloadCount, synFloodPayloadCount, bufferOverflowPayloadCount],
+                        label: ['Normal', 'Buffer Overflow',
+                        'Syn-Flood'],
+                        data: barChartData.counts,
                         backgroundColor: [
+                            'rgba(37, 223, 31, 0.8)',
                             'rgba(255, 99, 132, 0.5)',
-                            'rgba(54, 162, 235, 0.7)',
                             'rgba(255, 206, 86, 0.9)',
                         ],
                         borderColor: [
+                            'rgba(37, 223, 31, 1)',
                             'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
                             'rgba(255, 206, 86, 1)',
                         ],
                         borderWidth: 2,
                         borderRadius: 10,
-                        hoverBackgroundColor: 'rgba(255, 99, 132, 0.8)',
+                        hoverBackgroundColor: 'rgba(228, 199, 235, 1)',
                         hoverBorderColor: 'rgba(255, 99, 132, 1)'
                     }]},
                     options: {
@@ -467,36 +565,89 @@ In order to use Anomalyze first you must specify a destination IP address that y
             // setInterval(fetchData, 1000);
             setInterval(fetchData, 250);
 
-            // Toggle verbose mode
-            $('#toggle-verbose-btn').click(toggleVerboseMode);
             //save session data when save button is clicked
             $('#save-session-btn').click(saveSession);
         });
 
 
-        document.getElementById('startPacketScan').addEventListener('submit', function(event) {
-            event.preventDefault();
+
+        function startPacketScan() {
             const destIP = document.getElementById('destIPAddr').value;
             const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            document.getElementById('destination_IP').value = destIP;
             
-            fetch("{% url 'start_packet_scan' %}", {
+            fetch('/start-packet-scan/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': csrfToken
                 },
-                body: JSON.stringify({
-                    dest_ip: destIP
-                })
+                body: JSON.stringify({ dest_ip: destIP })
             })
             .then(response => response.json())
             .then(data => {
-                console.log(data);
+                if (data.status === 'success') {
+                    alert('Packet scan started successfully');
+                } else {
+                    alert('Error: ' + data.message);
+                }
             })
             .catch(error => {
                 console.error('Error:', error);
+                alert('An error occurred');
             });
-        });
+        }
+        
+        function startSimulatedEnv() {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            document.getElementById('destination_IP').value = "YOUR LOCAL IP";
+
+            fetch('/start-simulated-packet-scan/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Simulated environment started successfully');
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        }
+
+        function stopPacketScan() {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            fetch('/stop-packet-scan/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Packet scan stopped successfully');
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        }
     </script>
 </body>
 </html>

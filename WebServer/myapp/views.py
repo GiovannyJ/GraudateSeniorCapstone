@@ -11,10 +11,11 @@ import re
 from django.conf import settings
 import pandas as pd
 
-# from Cyber.AI_Model_Trainer import AnomalyDetector, DataLoader, DataPreprocessor
 from AI_Scripts.AI_Model_Trainer import  AnomalyDetector, DataLoader, DataPreprocessor
-detector = AnomalyDetector()
+from ProcessRunner.run import ProcessRunner
 
+
+#* HELPER FUNCTIONS 
 timings = {
     "web_server_boot": 0,
     "ai_training": 0,
@@ -34,32 +35,27 @@ def end_timer(start_time, operation):
 
 def get_timings():
     return timings
- 
-     
-# Define a function for
-# validate an Ip address
+
 def check(Ip): 
     regex = "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$"
-    # pass the regular expression
-    # and the string in search() method
     return re.search(regex, Ip)
+
+
+def random_one():
+    return int(random.choice([1, -1]))
+
+
+
+
+detector = AnomalyDetector()
+MalPacket_procRunner = ProcessRunner("malpacket.exe")
+PacketSniffer_procRunner = ProcessRunner("packet_sniffer.api.exe")
 
 
 ai_training_start = start_timer()
 #! WITH TRAINED MODEL
 MODEL_PATH = settings.BASE_DIR /  "models" 
-
-
-# if os.path.exists(MODEL_PATH):
-# model = joblib.load(MODEL_PATH / "network_packet_classifier_04_03_2025_17_53_07.pkl" )
-# else:
-#     raise FileNotFoundError(f"Model file not found at {MODEL_PATH}")
-
-
 AI_Scripts_dir = settings.BASE_DIR / "AI_Scripts"
-# trained_model = AI_Scripts_dir / "network_packet_classifier.pkl"
-# trained_model_path = AI_Scripts_dir / "network_packet_classifier.joblib"
-# trained_model = joblib.load(trained_model_path)
 
 #! WITH UNTRAINED MODEL
 datasets_dir = AI_Scripts_dir / "datasets"    
@@ -68,7 +64,6 @@ test_file_path = datasets_dir / "All_Malware_Even.json"
 
 train_df = DataPreprocessor(DataLoader.transform_json_to_df(train_file_path)).preprocess_df()
 test_df = DataPreprocessor(DataLoader.transform_json_to_df(test_file_path)).preprocess_df()
-# Train and predict using the model
 
 train_df = train_df.dropna()
 test_df = test_df.dropna()
@@ -81,8 +76,7 @@ results = ""
 live_data = []
 packet_anomaly_count_dict = {"anomaly": 0, "normal": 0}
 
-def random_one():
-    return int(random.choice([1, -1]))
+
 
 @csrf_exempt
 def ipv4_data(request):
@@ -104,11 +98,20 @@ def ipv4_data(request):
                 
                 if data["anomaly_score"] == 1:
                     packet_anomaly_count_dict["anomaly"] += 1
-                    print("\n\n\nTHIS IS AN ANOMLY\n\n\n")
+                    # print("\n\n\nTHIS IS AN ANOMLY\n\n\n")
                 else:
                     packet_anomaly_count_dict["normal"] += 1
-                    print("\n\n\nTHIS IS NORMAL\n\n\n")
+                    # print("\n\n\nTHIS IS NORMAL\n\n\n")
                 data["anomaly_normal_count"] = packet_anomaly_count_dict
+                
+                #! APPENDING TRUE LABEL
+                # if 1 == 1:
+                #     data["trueLabel"] = "Normal"
+                # elif 2 == 2:
+                #     data["trueLabel"] = "BufferOverFlow"
+                # elif 3 == 3:
+                #     data["trueLabel"] = "SynFlood"
+                
                 end_timer(request_processing, "request_processing")
                 
                 # print(data)
@@ -134,8 +137,6 @@ def display_data(request):
     return render(request, 'dynamictest.html', {'data': live_data})
     
 
-
-
 @csrf_exempt
 def start_packet_scan(request):
     if request.method == 'POST':
@@ -143,14 +144,61 @@ def start_packet_scan(request):
             data = json.loads(request.body)
             dest_ip = data.get('dest_ip', '')
             if check(dest_ip):
-                print(f"Packet Scan Started for IP: {dest_ip}")
-            
+                # print(f"Packet Scan Started for IP: {dest_ip}")
+                
+                MalPacket_procRunner.StartProcess()
+                PacketSniffer_procRunner.StartProcess(dest_ip)
+                
                 return JsonResponse({
                     'status': 'success',
                     'message': 'Packet Scan Started',
                     'destination_ip': dest_ip
                 })
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Invalid IP address'}, status=400)
         except json.JSONDecodeError:
             return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
     
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+
+@csrf_exempt
+def start_simulated_packet_scan(request):
+    if request.method == 'POST':
+        try:
+            MalPacket_procRunner.StartProcess()
+            #! FIND A WAY TO PASS THE IP NORMALLY
+            PacketSniffer_procRunner.StartProcess("192.168.0.135")
+                    
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Simulated Environment Started',
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+
+
+@csrf_exempt
+def stop_packet_scan(request):
+    if request.method == 'POST':
+        try:
+            MalPacket_procRunner.StopProcess()
+            PacketSniffer_procRunner.StopProcess()
+                
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Packet Scan Stopped',
+            })
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+
+
+
+
+
+
+

@@ -10,3 +10,8 @@ packet:
 
 mal:
 	cd Malpacket && go run malpacketcreate.go
+
+
+Make a thing to compile PacketSniffer
+compile Malpacket
+Move to WebServer/ProcessRunner/ * 

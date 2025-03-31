@@ -102,6 +102,11 @@ python3 -m pip install -r requirements.txt
 cd WebServer
 python3 manage.py runserver 8080
 ```
+**Within the web server triggers the launch the Packet Scanner and simulated networks binaries are made.**
+
+---
+## **The following steps are depreciated**
+
 ### **2️⃣Selecting a Target & Mode**
 - **Set Target IP:** Modify the targetIP variable in main.go
 - **Select mode:** Modify the second argument of p.Sniff()

@@ -121,6 +121,11 @@ func main() {
 	h.Okay("Packet session completed")
 }
 
+
+
+
+
+
 func generateHTTPPayload() []byte {
 	paths := []string{"/", "/index.html", "/about", "/contact", "/products"}
 	randomPath := paths[rand.Intn(len(paths))]

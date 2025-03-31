@@ -25,7 +25,12 @@ What should they do
     type in IP address -> press Run 
 What features are there
     -run 
+        sends signal to start malpacket and packersniffer
+        need to make it so that exe have sys env variables for IP addr
+
     -stop scan
+        sends signal to stop all process runners
+     
     -save (DONE)
 
 What stats are there
@@ -33,3 +38,8 @@ What stats are there
     -packet size over time
     -packet frequency over time
     -true labels count (to be added)
+
+DONE Make true labels diagram 
+Make Source and destination computers look better
+DONE Make code run with command line args (packet sniffer)
+Fix Traveled to Column 
