@@ -104,6 +104,14 @@ python3 manage.py runserver 8080
 ```
 **Within the web server triggers the launch the Packet Scanner and simulated networks binaries are made.**
 
+### Alternatively
+**In the root directory:**
+```bash
+make run
+```
+
+**This will build the binaries for the packet scanner and simulated network, move their files to the proper directory, and run the web server all in one step.**
+
 ---
 ## **The following steps are depreciated**
 
