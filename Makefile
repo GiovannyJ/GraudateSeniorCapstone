@@ -1,17 +1,30 @@
-.PHONY: all web packet mal
+# Detect OS
+ifeq ($(OS),Windows_NT)
+    DETECTED_OS := Windows
+    MOVE := move
+    PYTHON := python
+    SEP := \\
+else
+    DETECTED_OS := Unix
+    MOVE := mv
+    PYTHON := python3
+    SEP := /
+endif
 
-all: web packet mal
+run: build web
 
+# Running the web server
 web:
-	cd WebServer && python manage.py runserver 8080 &
+	cd WebServer && $(PYTHON) manage.py runserver 8080 &
 
-packet:
-	cd PacketSniffer && go run main.go
+# Building the binaries for packetsniffer and packet env
+build: build_packet build_malpacket
 
-mal:
-	cd Malpacket && go run malpacketcreate.go
+build_packet: 
+	cd PacketSniffer && go build -o packetsniffer.exe
+	$(MOVE) PacketSniffer$(SEP)packetsniffer.exe WebServer$(SEP)ProcessRunner$(SEP)packetsniffer.exe
 
+build_malpacket:
+	cd Malpacket && go build -o malpacket.exe
+	$(MOVE) Malpacket$(SEP)malpacket.exe WebServer$(SEP)ProcessRunner$(SEP)malpacket.exe
 
-Make a thing to compile PacketSniffer
-compile Malpacket
-Move to WebServer/ProcessRunner/ * 

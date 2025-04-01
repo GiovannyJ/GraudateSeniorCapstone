@@ -283,7 +283,7 @@
         let responseData = []
        
         let barChartData = {
-            labels: ['Normal', 'Buffer Overflow', 'Syn-Flood'],
+            labels: ['Low Risk', 'Medium Risk', 'High Risk'],
             counts: [0, 0, 0]  // Initialize all counts to 0
         };
         
@@ -310,7 +310,9 @@
                             let tableBody = $('#data-table tbody');
 
                             // Get the newest item (assuming it's the first item in the array)
-                            let newestItem = response.data[0];
+                            let newestItem = response.data[response.data.length - 1];
+                            console.table(newestItem);
+                            console.table(responseData);
 
                             // Determine row class and animation based on anomaly score
                             let rowClass = newestItem.anomaly_score === -1 ? 'normal' : 'anomaly';
@@ -348,21 +350,21 @@
 
 
                             //! BASE OFF OF TRUE LABELS IN FUTURE                            
-                            if (rowClass === 'normal') {
-                                barChartData.counts[0] += 10;  
-                            } else {
-                                barChartData.counts[1] += 10;
-                                barChartData.counts[2] += 10;
-                            }
-
-                            // if(newestItem.trueLabel === 'Normal'){
+                            // if (rowClass === 'normal') {
                             //     barChartData.counts[0] += 10;  
-                            // }else if(newestItem.trueLabel === 'BufferOverFlow'){
+                            // } else {
                             //     barChartData.counts[1] += 10;
-                            // }
-                            // else if(newestItem.trueLabel === 'SynFlood'){
                             //     barChartData.counts[2] += 10;
                             // }
+
+                            if(newestItem.risk_label === 'low_risk'){
+                                barChartData.counts[0] += 1;  
+                            }else if(newestItem.risk_label === 'medium_risk'){
+                                barChartData.counts[1] += 1;
+                            }
+                            else if(newestItem.risk_label === 'high_risk'){
+                                barChartData.counts[2] += 1;
+                            }
 
                             // Update the donut chart
                             let chart = bb.generate({
@@ -410,9 +412,7 @@
                 myChart2.data.datasets[0].data = payloadFrequencyData;
                 myChart2.update();
 
-                horizontalBarChart.data[0] = 10
-                horizontalBarChart.data[1] = 10
-                horizontalBarChart.data[2] = 10
+                horizontalBarChart.update();
             }
         }
 
@@ -537,13 +537,13 @@
                         data: barChartData.counts,
                         backgroundColor: [
                             'rgba(37, 223, 31, 0.8)',
-                            'rgba(255, 99, 132, 0.5)',
                             'rgba(255, 206, 86, 0.9)',
+                            'rgba(255, 99, 132, 0.5)',
                         ],
                         borderColor: [
                             'rgba(37, 223, 31, 1)',
-                            'rgba(255, 99, 132, 1)',
                             'rgba(255, 206, 86, 1)',
+                            'rgba(255, 99, 132, 1)',
                         ],
                         borderWidth: 2,
                         borderRadius: 10,

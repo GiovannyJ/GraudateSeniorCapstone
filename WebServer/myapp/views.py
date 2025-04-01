@@ -49,7 +49,7 @@ def random_one():
 
 detector = AnomalyDetector()
 MalPacket_procRunner = ProcessRunner("malpacket.exe")
-PacketSniffer_procRunner = ProcessRunner("packet_sniffer.api.exe")
+PacketSniffer_procRunner = ProcessRunner("packetsniffer.exe")
 
 
 ai_training_start = start_timer()
@@ -139,7 +139,7 @@ def ipv4_data(request):
                 if data["anomaly_score"] == 1:
                     packet_anomaly_count_dict["anomaly"] += 1
                     print("\n\n\nTHIS IS AN ANOMALY\n\n\n")
-                else:
+                elif data["anomaly_score"] == -1:
                     packet_anomaly_count_dict["normal"] += 1
                     print("\n\n\nTHIS IS NORMAL\n\n\n")
                 risk_label = data['risk_label']
