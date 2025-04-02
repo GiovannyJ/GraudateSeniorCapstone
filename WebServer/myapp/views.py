@@ -7,12 +7,14 @@ import os
 import random
 import time
 import re
+import socket
 
 from django.conf import settings
 import pandas as pd
 
 from AI_Scripts.AI_Model_Trainer import  AnomalyDetector, DataLoader, DataPreprocessor
 from ProcessRunner.run import ProcessRunner
+
 
 
 #* HELPER FUNCTIONS 
@@ -45,11 +47,23 @@ def random_one():
     return int(random.choice([1, -1]))
 
 
+def get_local_ip():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('10.255.255.255', 1))
+        local_ip = s.getsockname()[0]
+    except Exception:
+        local_ip = '127.0.0.1'
+    finally:
+        s.close()
+    return local_ip
 
+
+USER_LOCAL_IP = get_local_ip()
 
 detector = AnomalyDetector()
-MalPacket_procRunner = ProcessRunner("malpacket.exe")
-PacketSniffer_procRunner = ProcessRunner("packetsniffer.exe")
+MalPacket_procRunner = ProcessRunner("malpacket")
+PacketSniffer_procRunner = ProcessRunner("packetsniffer")
 
 
 ai_training_start = start_timer()
@@ -132,6 +146,7 @@ def ipv4_data(request):
                 request_processing = start_timer()
                 results_df = detector.risk_scoring(data)
                 
+                data["user_local_ip"] = USER_LOCAL_IP
                 if not results_df.empty:
                     data["anomaly_score"] = int(results_df.iloc[0]["Anomaly Score"])  # Get prediction
                     data["risk_label"] = results_df.iloc[0]["Risk Label"]  # Get risk label
@@ -152,17 +167,9 @@ def ipv4_data(request):
                     # print("\n\n\nTHIS IS NORMAL\n\n\n")
                 data["anomaly_normal_count"] = packet_anomaly_count_dict
                 
-                #! APPENDING TRUE LABEL
-                # if 1 == 1:
-                #     data["trueLabel"] = "Normal"
-                # elif 2 == 2:
-                #     data["trueLabel"] = "BufferOverFlow"
-                # elif 3 == 3:
-                #     data["trueLabel"] = "SynFlood"
                 
                 
                 
-                data["anomaly_normal_count"] = packet_anomaly_count_dict
             end_timer(request_processing, "request_processing")
             live_data.append(data)
             print("Live Data: ", data)
@@ -216,11 +223,12 @@ def start_simulated_packet_scan(request):
         try:
             MalPacket_procRunner.StartProcess()
             #! FIND A WAY TO PASS THE IP NORMALLY
-            PacketSniffer_procRunner.StartProcess("192.168.0.135")
+            PacketSniffer_procRunner.StartProcess(USER_LOCAL_IP)
                     
             return JsonResponse({
                 'status': 'success',
                 'message': 'Simulated Environment Started',
+                'user_local_ip': USER_LOCAL_IP,
             })
             
         except json.JSONDecodeError:

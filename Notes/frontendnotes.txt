@@ -40,6 +40,9 @@ What stats are there
     -true labels count (to be added)
 
 DONE Make true labels diagram 
-Make Source and destination computers look better
 DONE Make code run with command line args (packet sniffer)
-Fix Traveled to Column 
+DONE Fix Traveled to Column 
+
+Make Source and destination computers look better
+Make logic for suspicious levels
+Fix Packet Risk

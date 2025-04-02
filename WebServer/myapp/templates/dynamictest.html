@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>Anomalyze</title>
-    <!-- Include Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/billboard.js/dist/billboard.min.js"></script>
@@ -15,16 +14,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.2/Chart.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://kit.fontawesome.com/5ce6343537.js" crossorigin="anonymous"></script>
     
     
     <style>
-        /* Custom styles */
-        .normal { background-color: #d4edda;} /* Green for normal */
-        .anomaly { background-color: #f8d7da;} /* Red for anomaly */
-        .hidden { display: none; } /* Hide verbose columns by default */
-        pre { white-space: pre-wrap; word-wrap: break-word; } /* For formatting payload */
+        
+        .normal { background-color: #d4edda;} 
+        .anomaly { background-color: #f8d7da;} 
+        
+        pre { white-space: pre-wrap; word-wrap: break-word; } 
 
-        /*Formatting new payload animation*/
+        
         @keyframes newNormalPacket {
             0%{
                 background-color: yellow;
@@ -43,19 +43,19 @@
              }
         }
 
-          /* Fix the table header */
+          
           .table-responsive {
             position: relative;
-            max-height: 600px; /* Adjust height as needed */
+            max-height: 600px; 
             overflow-y: auto;
         }
 
         .table-responsive thead th {
             position: sticky;
             top: 0;
-            background-color: #343a40; /* Match the header background color */
-            color: white; /* Match the header text color */
-            z-index: 1; /* Ensure the header stays above the table body */
+            background-color: #343a40; 
+            color: white; 
+            z-index: 1; 
         }
 
         .modal-body {
@@ -96,29 +96,29 @@
 </head>
 <body>
     <div class="container-fluid">
-        <h1 class="mt-4" style="text-align: center;">Anomalyze 
-            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModalCenter">I</button>
+        <h1 class="mt-4" style="text-align: center;"><i> Anomalyze </i>
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModalCenter"><i class="fa-solid fa-circle-info"></i></button>
         </h1>
         
         <div class="mb-3">
             <div class="row">
                 <div class="col-1">
-                    <button id="" class="btn btn-primary mb-3" onclick="saveSession()">Save Session</button>
+                    <button  class="btn btn-primary mb-3" onclick="saveSession()"><i class="fa-solid fa-download"></i> Save Session</button>
                 </div>
-                <div class="col-4">
+                <div class="col-4 ml-4">
                     <form class="form-inline" id="packetScanForm">
                         {% csrf_token %}
                         <div class="form-group">
                             <input type="text" id="destIPAddr" name="dest_ip" class="form-control" placeholder="Destination IP Address">
                         </div>
                         <div class="col-auto">
-                            <button type="button" class="btn btn-success" onclick="startPacketScan()">Start Session</button>
+                            <button type="button" class="btn btn-success" onclick="startPacketScan()"><i class="fa-solid fa-globe"></i> Start Session</button>
                         </div>
                         <div class="col-auto">
-                            <button type="button" class="btn btn-info" onclick="startSimulatedEnv()">Start Simulated Environment</button>
+                            <button type="button" class="btn btn-info" onclick="startSimulatedEnv()"><i class="fa-solid fa-house-signal"></i> Start Simulated Environment</button>
                         </div>
                         <div class="col-auto">
-                            <button type="button" class="btn btn-danger" onclick="stopPacketScan()">Stop Session</button>
+                            <button type="button" class="btn btn-danger" onclick="stopPacketScan()"><i class="fa-solid fa-xmark"></i> Stop Session</button>
                         </div>
                     </form>
                 </div>
@@ -128,6 +128,8 @@
         <div class="row ml-1 mr-1 mt-4" style="height: 600px">
             
             <div class="col-1" style="background-color:cornflowerblue;">
+                <br>
+                Source Device IP
                 <input class="mt-3" id="source_IP" name=source_IP" type="text" value="" placeholder="Source Device IP" readonly>
             </div>
             <div class="col-10">
@@ -141,8 +143,6 @@
                                 <th>Checksum</th>
                                 <th>TTL</th>
                                 <th>TCP Payload</th>
-                                <th>TCP Base Layer Contents</th>
-                                <th>TCP Base Layer Payload</th>
                                 <th>TCP Source Port</th>
                                 <th>TCP Destination Port</th>
                                 <th>TCP Seq Number</th>
@@ -158,18 +158,33 @@
                 </div>
             </div>
             <div class="col-1" style="background-color: crimson;">
-                <input class="mt-3" id="destination_IP" name=destination_IP" type="text" value="" placeholder="Destination Device IP" readonly>
-                
+                <br>
+                Destination Device IP
+                <input class="mt-3 mb-3" id="destination_IP" name=destination_IP" type="text" value="" placeholder="Destination Device IP" readonly>
+
+                Suspicion Level
                 <input class="mt-4" id="destination_suspicion_lvl" name="destination_suspicion_lvl" type="text" value="" placeholder="Not Suspicious" readonly> <!--MAKE LOGIC SO THAT THE MORE TRAFFIC THATS WEIRD THE LABEL CHANGES(Not Suspicious, Suspicious, Dangerous)-->
             </div>
         </div>
     </div>
         <!--BEGIN CHARTS-->
         <div class="row justify-content-between ml-1 mr-1 mt-4">
-            <div class="col-2" id="donut-chart" style=  "display: flex;
+            
+            <div class="col-1" style="display: flex; justify-content: center; align-items: center;padding: 0;">
+                <div class="row ml-4">
+                    <div class="col-5">
+                        Normal Count:<input type="number" id="normal_count" class="form-control" value="0" readonly>
+                        <br>
+                        Anomaly Count:<input type="number" id="anomaly_count" class="form-control" value="0" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-2" id="donut-chart" style="display: flex;
             justify-content: center;
             align-items: center;
             padding: 0;"></div>
+
             <div class="col-3">
                 <h2>Payload Size over Time</h2>
                 <div>
@@ -183,7 +198,7 @@
                 </div>
             </div>
             <div class="col-3">
-                <h2>Packet Type</h2>
+                <h2>Packet Risk Categories</h2>
                 <div>
                     <canvas id="myStyledBarChart" width="370" height="160"></canvas>
                 </div>
@@ -273,43 +288,44 @@
     
 
     <script>
-        let verboseMode = false; // Track verbose mode state
-        let payloadSizeData = []; // Array to store payload size data
-        let payloadFrequencyData = []; // Array to store payload frequency data
-        let timeLabels = []; // Array to store time labels
-        let myChart, myChart2; // Chart instances
+        let verboseMode = false;
+        let payloadSizeData = [];
+        let payloadFrequencyData = []; 
+        let timeLabels = [];
+        let myChart, myChart2; 
         let horizontalBarChart
         let responseDataArrSize = 0
         let responseData = []
+        let requestCounts = {}; // Track requests per timestamp (second)
+
        
         let barChartData = {
             labels: ['Low Risk', 'Medium Risk', 'High Risk'],
-            counts: [0, 0, 0]  // Initialize all counts to 0
+            counts: [[0], [0], [0]]  
         };
         
 
         function fetchData() {
             $.ajax({
-                url: window.location.href, // Use the current URL
+                url: window.location.href, 
                 type: 'GET',
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest' // Indicate this is an AJAX request
+                    'X-Requested-With': 'XMLHttpRequest' 
                 },
                 success: function(response) {
                     // Check if the response data is empty or unchanged
                     if (!response.data || response.data.length === 0 || JSON.stringify(response.data) === JSON.stringify(responseData)) {
                         console.log("No new data received.");
-                        return; // Exit the function if no new data is available
+                        return; 
                     }
 
-                        console.log("response" + response);
                         if (response.data && response.data.length > 0) {
-                            console.log("response data" + response.data);
+                            
 
-                            responseData = response.data; // Store the response data globally
+                            responseData = response.data; // Store the response data globally for the save button
                             let tableBody = $('#data-table tbody');
 
-                            // Get the newest item (assuming it's the first item in the array)
+                            // Get the newest item at the end of the list
                             let newestItem = response.data[response.data.length - 1];
                             console.table(newestItem);
                             console.table(responseData);
@@ -318,17 +334,15 @@
                             let rowClass = newestItem.anomaly_score === -1 ? 'normal' : 'anomaly';
                             let animation = rowClass === 'normal' ? 'newNormalPacket 1s 1 normal' : 'newAnomalyPacket 1s 1 normal';
 
-                            // Prepend the newest item to the table
+                            // the newest item to the table will be added to the top
                             tableBody.prepend(
                                 `<tr class="${rowClass}" style="animation: ${animation};">
                                     <td><pre>${newestItem.ipv4data.timestamp}</pre></td>
-                                    <td> -> </td>
+                                    <td> ${newestItem.user_local_ip === newestItem.ipv4data.source ? '<i class="fa-solid fa-angles-right"></i>' : '<i class="fa-solid fa-angles-left"></i>'} </td>
                                     <td>${newestItem.ipv4data.length}</td>
                                     <td>${newestItem.ipv4data.checksum}</td>
                                     <td>${newestItem.ipv4data.ttl}</td>
                                     <td><pre>${newestItem.tcpdata.payload}</pre></td>
-                                    <td><pre>${newestItem.tcpdata.base_layer?.Contents || ''}</pre></td>
-                                    <td><pre>${newestItem.tcpdata.base_layer?.Payload || ''}</pre></td>
                                     <td>${newestItem.tcpdata.source_port}</td>
                                     <td>${newestItem.tcpdata.destination_port}</td>
                                     <td>${newestItem.tcpdata.sequence_number}</td>
@@ -340,31 +354,34 @@
 
                             // Update payload size and frequency data
                             let payloadSize = newestItem.tcpdata.payload.length || 0;
+                            // let timestamp = new Date(newestItem.ipv4data.timestamp);
+                            // let timeString = timestamp.toLocaleTimeString(); // Format timestamp to display only time
+
                             let timestamp = new Date(newestItem.ipv4data.timestamp);
-                            let timeString = timestamp.toLocaleTimeString(); // Format timestamp to display only time
+                            // Round to nearest second (for grouping)
+                            const timeKey = Math.floor(timestamp.getTime() / 1000); 
+
+                            // Increment request count for this second
+                            requestCounts[timeKey] = (requestCounts[timeKey] || 0) + 1;
 
                             // Add new data to the arrays
                             payloadSizeData.push(payloadSize);
-                            payloadFrequencyData.push(payloadSizeData.length); // Frequency is the count of payloads
-                            timeLabels.push(timeString);
+                            // payloadFrequencyData.push(payloadSizeData.length);
+                            payloadFrequencyData = Object.values(requestCounts);
+                            // timeLabels.push(timeString);
+                            timeLabels.push(timestamp.toLocaleTimeString());
 
 
-                            //! BASE OFF OF TRUE LABELS IN FUTURE                            
-                            // if (rowClass === 'normal') {
-                            //     barChartData.counts[0] += 10;  
-                            // } else {
-                            //     barChartData.counts[1] += 10;
-                            //     barChartData.counts[2] += 10;
-                            // }
 
                             if(newestItem.risk_label === 'low_risk'){
-                                barChartData.counts[0] += 1;  
+                                barChartData.counts[0][0] += 1;  
                             }else if(newestItem.risk_label === 'medium_risk'){
-                                barChartData.counts[1] += 1;
+                                barChartData.counts[1][0] += 1;
                             }
                             else if(newestItem.risk_label === 'high_risk'){
-                                barChartData.counts[2] += 1;
+                                barChartData.counts[2][0] += 1;
                             }
+                            console.log(barChartData.counts)
 
                             // Update the donut chart
                             let chart = bb.generate({
@@ -382,12 +399,29 @@
                                 bindto: "#donut-chart",
                             });
 
-                            if(newestItem.anomaly_normal_count.anomaly > newestItem.anomaly_normal_count.normal){
-                                document.getElementById('destination_suspicion_lvl').value = "Not Normal";
-                                // document.getElementById('destination_suspicion_lvl').value = "Very Suspicious";
+                            //Changing Normal/Anomaly Counts
+                            document.getElementById("anomaly_count").value = newestItem.anomaly_normal_count.anomaly;
+                            document.getElementById("normal_count").value = newestItem.anomaly_normal_count.normal;
+
+
+                            //Update Source Device IP
+                            document.getElementById("source_IP").value = newestItem.user_local_ip
+
+                            //CHANGING THE SUPICOIUS LEVEL
+                            /*
+                            logic so that if highrisk is high then very -> medium risk bigger than high risk kinda weird -> overall low then its fine
+                            find thresholds for each and
+                            for ex: if there are 10 high risk but 10000 low risk then is it even suspicious?
+                            */
+                            if(newestItem.anomaly_normal_count.high_risk > 10){
+                                document.getElementById('destination_suspicion_lvl').value = "Very Suspicious";
+                            }else if(newestItem.anomaly_normal_count.medium_risk > 10){
+                                document.getElementById('destination_suspicion_lvl').value = "Kinda Suspicious";
+                            }else if(newestItem.anomaly_normal_count.low_risk > 10){
+                                document.getElementById('destination_suspicion_lvl').value = "Not Suspicious";
                             }
 
-                            // Update the charts
+                            
                             updateCharts();
                         } else {
                             // If no data is available, display a message
@@ -408,12 +442,22 @@
                 myChart.data.datasets[0].data = payloadSizeData;
                 myChart.update();
 
-                myChart2.data.labels = timeLabels;
-                myChart2.data.datasets[0].data = payloadFrequencyData;
-                myChart2.update();
+                // myChart2.data.labels = timeLabels;
+                // myChart2.data.datasets[0].data = payloadFrequencyData;
+                // myChart2.update();
 
                 horizontalBarChart.update();
             }
+            if (!myChart2) return;
+            // Slice the last 60 entries
+            const maxDataPoints = 60;
+            const slicedLabels = timeLabels.slice(-maxDataPoints);
+            const slicedFrequencyData = payloadFrequencyData.slice(-maxDataPoints);
+
+            // Update Chart2
+            myChart2.data.labels = slicedLabels;
+            myChart2.data.datasets[0].data = slicedFrequencyData;
+            myChart2.update();
         }
 
         
@@ -529,27 +573,50 @@
 
             horizontalBarChart = new Chart(document.getElementById('myStyledBarChart').getContext('2d'), {
                     type: 'bar',
-                    data: {labels: ['Low Risk', 'Medium Risk',
-                             'High Risk'],
+                    data: {labels: ['Risk Counts'],
                     datasets: [{
-                        label: ['Normal', 'Buffer Overflow',
-                        'Syn-Flood'],
-                        data: barChartData.counts,
+                        label: 'Low Risk',
+                        data: barChartData.counts[0],
                         backgroundColor: [
                             'rgba(37, 223, 31, 0.8)',
-                            'rgba(255, 206, 86, 0.9)',
-                            'rgba(255, 99, 132, 0.5)',
                         ],
                         borderColor: [
                             'rgba(37, 223, 31, 1)',
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 10,
+                        hoverBackgroundColor: 'rgba(228, 199, 235, 1)',
+                        hoverBorderColor: 'rgba(255, 99, 132, 1)'
+                    },
+                    {
+                        label: 'Medium Risk Risk',
+                        data: barChartData.counts[1],
+                        backgroundColor: [
+                            'rgba(255, 206, 86, 0.9)',
+                        ],
+                        borderColor: [
                             'rgba(255, 206, 86, 1)',
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 10,
+                        hoverBackgroundColor: 'rgba(228, 199, 235, 1)',
+                        hoverBorderColor: 'rgba(255, 99, 132, 1)'
+                    },
+                    {
+                        label: 'High Risk',
+                        data: barChartData.counts[2],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.5)',
+                        ],
+                        borderColor: [
                             'rgba(255, 99, 132, 1)',
                         ],
                         borderWidth: 2,
                         borderRadius: 10,
                         hoverBackgroundColor: 'rgba(228, 199, 235, 1)',
                         hoverBorderColor: 'rgba(255, 99, 132, 1)'
-                    }]},
+                    }]
+                },
                     options: {
                         scales: {
                             y: {
@@ -564,7 +631,7 @@
             // setInterval(fetchData, 1000);
             setInterval(fetchData, 250);
 
-            //save session data when save button is clicked
+            
             $('#save-session-btn').click(saveSession);
         });
 
@@ -600,8 +667,6 @@
         
         function startSimulatedEnv() {
             const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            
-            document.getElementById('destination_IP').value = "YOUR LOCAL IP";
 
             fetch('/start-simulated-packet-scan/', {
                 method: 'POST',
@@ -614,6 +679,7 @@
             .then(data => {
                 if (data.status === 'success') {
                     alert('Simulated environment started successfully');
+                    document.getElementById('destination_IP').value = data.user_local_ip;
                 } else {
                     alert('Error: ' + data.message);
                 }

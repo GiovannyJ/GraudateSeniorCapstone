@@ -2,7 +2,7 @@
 ifeq ($(OS),Windows_NT)
     DETECTED_OS := Windows
     MOVE := move
-    PYTHON := python
+    PYTHON := python3
     SEP := \\
 else
     DETECTED_OS := Unix
@@ -21,10 +21,10 @@ web:
 build: build_packet build_malpacket
 
 build_packet: 
-	cd PacketSniffer && go build -o packetsniffer.exe
-	$(MOVE) PacketSniffer$(SEP)packetsniffer.exe WebServer$(SEP)ProcessRunner$(SEP)packetsniffer.exe
+	cd PacketSniffer && go build -o WebServer$(SEP)ProcessRunner$(SEP)packetsniffer
+#$(MOVE) PacketSniffer$(SEP)packetsniffer WebServer$(SEP)ProcessRunner$(SEP)packetsniffer
 
 build_malpacket:
-	cd Malpacket && go build -o malpacket.exe
-	$(MOVE) Malpacket$(SEP)malpacket.exe WebServer$(SEP)ProcessRunner$(SEP)malpacket.exe
-
+	cd Malpacket && go build -o WebServer$(SEP)ProcessRunner$(SEP)packetsniffer
+	
+#$(MOVE) Malpacket$(SEP)malpacket WebServer$(SEP)ProcessRunner$(SEP)packetsniffer

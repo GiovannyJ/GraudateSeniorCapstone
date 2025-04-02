@@ -52,14 +52,14 @@ func main() {
 	}
 	
 	for i := 0; i < 10000; i++ {
-		// r := rand.Intn(100) // Generate a random number between 0 and 99
-		r := 30
+		r := rand.Intn(100) // Generate a random number between 0 and 99
+		// r := 30
 	
 		switch {
-		// case r < 15 && packetCounts[SYNFlood] < 1000:
-		// 	a.GenerateSYNFlood(handle, targetIP, targetIP, 489, 80)
-		// 	packetCounts[SYNFlood] += 80
-		// 	h.Okay("SYN Packet Sent")
+		case r < 15 && packetCounts[SYNFlood] < 1000:
+			a.GenerateSYNFlood(handle, targetIP, targetIP, 489, 80)
+			packetCounts[SYNFlood] += 80
+			h.Okay("SYN Packet Sent")
 	
 		case r < 25 && packetCounts[BufferOverflow] < 1000:
 			a.GenerateBufferOverFlowPacket(handle, targetIP, targetIP, 489, 80)
@@ -92,7 +92,7 @@ func main() {
 			break
 		}
 
-		time.Sleep(time.Duration(2000 * time.Millisecond))
+		time.Sleep(time.Duration(1000 * time.Millisecond))
 	}
 
 	// for i := 0; i < 1000; i++ {
