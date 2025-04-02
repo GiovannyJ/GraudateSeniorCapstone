@@ -202,7 +202,6 @@ def start_packet_scan(request):
             if check(dest_ip):
                 # print(f"Packet Scan Started for IP: {dest_ip}")
                 
-                MalPacket_procRunner.StartProcess()
                 PacketSniffer_procRunner.StartProcess(dest_ip)
                 
                 return JsonResponse({

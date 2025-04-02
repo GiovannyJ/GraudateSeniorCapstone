@@ -21,10 +21,10 @@ web:
 build: build_packet build_malpacket
 
 build_packet: 
-	cd PacketSniffer && go build -o WebServer$(SEP)ProcessRunner$(SEP)packetsniffer
+	cd PacketSniffer && go build -o ../WebServer$(SEP)ProcessRunner$(SEP)packetsniffer
 #$(MOVE) PacketSniffer$(SEP)packetsniffer WebServer$(SEP)ProcessRunner$(SEP)packetsniffer
 
 build_malpacket:
-	cd Malpacket && go build -o WebServer$(SEP)ProcessRunner$(SEP)packetsniffer
+	cd Malpacket && go build -o ../WebServer$(SEP)ProcessRunner$(SEP)malpacket
 	
 #$(MOVE) Malpacket$(SEP)malpacket WebServer$(SEP)ProcessRunner$(SEP)packetsniffer
