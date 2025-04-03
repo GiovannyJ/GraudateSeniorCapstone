@@ -15,7 +15,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://kit.fontawesome.com/5ce6343537.js" crossorigin="anonymous"></script>
-    
+    <link rel="stylesheet" href="../style.css" />
+    {% load static %}
     
     <style>
         
@@ -127,10 +128,11 @@
 
         <div class="row ml-1 mr-1 mt-4" style="height: 600px">
             
-            <div class="col-1" style="background-color:cornflowerblue;">
+            <div class="col-1 d-flex flex-column align-items-center justify-content-center p-1">
                 <br>
-                Source Device IP
-                <input class="mt-3" id="source_IP" name=source_IP" type="text" value="" placeholder="Source Device IP" readonly>
+                <img src="{% static 'source.png' %}" alt="Source IP Address Icon" style="width:80%; height:auto"><br>
+                <span class="text">Source IP</span><br>
+                <input class="mt-3" id="source_IP" name="source_IP" type="text" value="" placeholder="Source Device IP" readonly><br>
             </div>
             <div class="col-10">
                 <div class="table-responsive overflow-scroll" style="max-height: 600px;">
@@ -157,13 +159,11 @@
                     </table>
                 </div>
             </div>
-            <div class="col-1" style="background-color: crimson;">
+            <div class="col-1 d-flex flex-column align-items-center justify-content-center p-1">
                 <br>
-                Destination Device IP
-                <input class="mt-3 mb-3" id="destination_IP" name=destination_IP" type="text" value="" placeholder="Destination Device IP" readonly>
-
-                Suspicion Level
-                <input class="mt-4" id="destination_suspicion_lvl" name="destination_suspicion_lvl" type="text" value="" placeholder="Not Suspicious" readonly> <!--MAKE LOGIC SO THAT THE MORE TRAFFIC THATS WEIRD THE LABEL CHANGES(Not Suspicious, Suspicious, Dangerous)-->
+                <img src="{% static 'destination.png' %}" alt="Destination IP Address Icon" style="width:80%; height:auto"><br>
+                <span class="text">Destination IP</span><br>
+                <input class="mt-3 mb-3" id="destination_IP" name="destination_IP" type="text" value="" placeholder="Destination Device IP" readonly><br>
             </div>
         </div>
     </div>
@@ -176,6 +176,8 @@
                         Normal Count:<input type="number" id="normal_count" class="form-control" value="0" readonly>
                         <br>
                         Anomaly Count:<input type="number" id="anomaly_count" class="form-control" value="0" readonly>
+                        <br>
+                        Suspicion Level:<input class="mt-4" id="destination_suspicion_lvl" name="destination_suspicion_lvl" type="text" value="" placeholder="Not Suspicious" readonly> <!--MAKE LOGIC SO THAT THE MORE TRAFFIC THATS WEIRD THE LABEL CHANGES(Not Suspicious, Suspicious, Dangerous)-->
                     </div>
                 </div>
             </div>

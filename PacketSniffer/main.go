@@ -2,7 +2,6 @@ package main
 
 import (
 	p "PacketSniffer/packet"
-	"os"
 )
 
 //const targetIP = "192.168.0.135"
@@ -15,9 +14,9 @@ File/file = sends to file in /PCAP_Files directory
 empty string = prints to console
 */
 func main() {
-	// device := p.GetDefaultInterface()
-	// targetIP := device.DeviceIP
-	targetIP := os.Args[1]
-	
+	device := p.GetDefaultInterface()
+	targetIP := device.DeviceIP
+	//targetIP := os.Args[1]
+
 	p.Sniff(targetIP, "API")
 }
