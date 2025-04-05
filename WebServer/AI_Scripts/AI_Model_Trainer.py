@@ -182,8 +182,7 @@ class AnomalyDetector:
         # Normalize the anomaly scores to a scale of 0-100
         min_score, max_score = min(anomaly_scores), max(anomaly_scores)
         risk_scores = (anomaly_scores - min_score) / (max_score - min_score) * 100  # Scale to [0, 100]
-        print(anomaly_scores)
-        print(risk_scores)
+        
         # Apply risk labeling based on the defined thresholds
         risk_labels = []
         for score in risk_scores:
