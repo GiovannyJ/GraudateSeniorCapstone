@@ -94,44 +94,6 @@ packet_anomaly_count_dict = {"anomaly": 0, "normal": 0,
 
 
 @csrf_exempt
-# def ipv4_data(request):
-#     global live_data  # Access the global variable
-    
-#     request_loading_start = start_timer()
-#     if request.method == "POST":
-#         try:
-#             # Parse incoming JSON data
-#             data = json.loads(request.body.decode("utf-8"))
-#             #! THIS IS WHERE THE AI CODE WILL LIVE AND MUTATE THE DATA
-#             if data:
-#                 end_timer(request_loading_start, "request_loading")
-#                 request_processing = start_timer()
-#                 results = detector.predict(data)
-                
-#                 data["anomaly_score"] = int(results[0])
-#                 # data["anomaly_score"] = random_one()
-                
-#                 if data["anomaly_score"] == 1:
-#                     packet_anomaly_count_dict["anomaly"] += 1
-#                     print("\n\n\nTHIS IS AN ANOMLY\n\n\n")
-#                 else:
-#                     packet_anomaly_count_dict["normal"] += 1
-#                     print("\n\n\nTHIS IS NORMAL\n\n\n")
-#                 data["anomaly_normal_count"] = packet_anomaly_count_dict
-#                 end_timer(request_processing, "request_processing")
-                
-#                 # print(data)
-
-#             live_data.append(data)
-#             # print(f"\nTIMINGS: \n {get_timings()}  \n\n\n")
-            
-#             return JsonResponse({"message": "IPv4 data received successfully!"}, status=200)
-        
-#         except json.JSONDecodeError:
-#             return JsonResponse({"error": "Invalid JSON"}, status=400)
-    
-#     return JsonResponse({"error": "Invalid request method"}, status=405)
-
 def ipv4_data(request):
     global live_data  # Access the global variable
     
