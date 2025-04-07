@@ -15,11 +15,14 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://kit.fontawesome.com/5ce6343537.js" crossorigin="anonymous"></script>
+    
     <!-- <link rel="stylesheet" href="../style.css" /> -->
     {% load static %}
     
     <style>
-        
+        body {
+            font-family: 'Roboto', 'Segoe UI', 'Inter', sans-serif;
+        }
         .normal { background-color: #d4edda;} 
         .anomaly { background-color: #f8d7da;} 
         
@@ -82,6 +85,7 @@
             background-color: #fff8e1;
             border-left: 4px solid #ffc107;
         }
+
         .keyword {
             font-weight: bold;
             color: #0d6efd;
@@ -93,10 +97,14 @@
             font-size: 0.9em;
             padding: 5px 10px;
         }
+        .form-control {
+            width:150px;
+        }
         .col-1 img {
             width: 50px;
             height: 50px;
         }
+        
     </style>
 </head>
 <body>
@@ -115,7 +123,7 @@
                         {% csrf_token %}
                         <div class="form-group mr-4">
                             <label for="sensitivity" class="form-label">Sensitivity</label>
-                            <input type="range" class="custom-range" min="0" max="100" id="sensitivity">
+                            <input type="range" class="custom-range" min="-0.5" max="0" step="0.01" id="sensitivity">
                         </div>
                         <div class="form-group">
                             
@@ -186,12 +194,12 @@
                         <br>
                         Anomaly Count:<input type="number" id="anomaly_count" class="form-control" value="0" readonly>
                         <br>
-                        Suspicion Level:<input class="mt-4" id="destination_suspicion_lvl" name="destination_suspicion_lvl" type="text" value="" placeholder="Not Suspicious" readonly> <!--MAKE LOGIC SO THAT THE MORE TRAFFIC THATS WEIRD THE LABEL CHANGES(Not Suspicious, Suspicious, Dangerous)-->
+                        Suspicion Level:<input class="form-control" id="destination_suspicion_lvl" name="destination_suspicion_lvl" type="text" value="" placeholder="Not Suspicious" readonly> <!--MAKE LOGIC SO THAT THE MORE TRAFFIC THATS WEIRD THE LABEL CHANGES(Not Suspicious, Suspicious, Dangerous)-->
                     </div>
                 </div>
             </div>
 
-            <div class="col-2" id="donut-chart" style="display: flex;
+            <div class="col-1" id="donut-chart" style="display: flex;
             justify-content: center;
             align-items: center;
             padding: 0;"></div>
