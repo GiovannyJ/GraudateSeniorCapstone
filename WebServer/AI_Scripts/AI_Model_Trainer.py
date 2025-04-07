@@ -3,7 +3,6 @@ import pandas as pd
 import json
 import numpy as np
 from ipaddress import ip_address
-import joblib
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import classification_report, confusion_matrix
@@ -146,9 +145,14 @@ class DataPreprocessor:
         return df
 
 class AnomalyDetector:
-    def __init__(self, n_estimators=100,contamination="auto"):
+    def __init__(self, n_estimators=100,contamination="auto", riskThresholds=-0.25):
         self.model = IsolationForest(n_estimators=n_estimators, contamination=contamination, random_state=42)
         self.scaler = StandardScaler()
+        self.riskThresholds = riskThresholds  # sensitivity level for risk
+
+    def set_risk_thresholds(self, sensitivity):
+        self.riskThresholds = sensitivity
+        
     def load_and_train_model(self, train_df):
         X = train_df.drop(columns=["Time"], errors='ignore')
         X_scaled = self.scaler.fit_transform(X)
@@ -160,7 +164,7 @@ class AnomalyDetector:
         predictions_lst = self.model.predict(y_scaled)
         return predictions_lst
     
-    def risk_scoring(self, json_input, low_threshold=30, high_threshold=70):
+    def risk_scoring(self, json_input):
         if isinstance(json_input, str):
             if os.path.exists(json_input):  # Check if it's a file path
                 df = DataPreprocessor(DataLoader.transform_json_to_df(json_input)).preprocess_df()
@@ -178,17 +182,17 @@ class AnomalyDetector:
         y_scaled = self.scaler.transform(y)  # Transform using the trained scaler
         anomaly_scores = self.model.decision_function(y_scaled)  # Decision function for anomaly scoring
         predictions = self.model.predict(y_scaled)  # 1 for normal, -1 for anomaly
-
-        # Normalize the anomaly scores to a scale of 0-100
-        min_score, max_score = min(anomaly_scores), max(anomaly_scores)
-        risk_scores = (anomaly_scores - min_score) / (max_score - min_score) * 100  # Scale to [0, 100]
         
+        low_threshold = 0
+        #min_score=anomaly_scores.min()
+        high_threshold = self.riskThresholds #min_score + (abs(low_threshold - min_score) / 2)
+        print(high_threshold)
         # Apply risk labeling based on the defined thresholds
         risk_labels = []
-        for score in risk_scores:
-            if score < low_threshold:
+        for score in anomaly_scores:
+            if score <= low_threshold:
                 risk_labels.append("low_risk")
-            elif score >= low_threshold and score <= high_threshold:
+            elif high_threshold >= score > low_threshold :
                 risk_labels.append("medium_risk")
             else:
                 risk_labels.append("high_risk")
@@ -208,7 +212,6 @@ class AnomalyDetector:
             if os.path.exists(json_input):  # Check if it's a file path
                 json_df = DataPreprocessor(DataLoader.transform_json_to_df(json_input)).preprocess_df()
         elif isinstance(json_input, dict):       
-            #print(f'\n\n\n\n\n{json_input}\n\n\n\n')
             json_df = pd.json_normalize(json_input)
         else:
             raise ValueError("Unsupported input type. Must be a DataFrame, JSON file path, or JSON text object.")
