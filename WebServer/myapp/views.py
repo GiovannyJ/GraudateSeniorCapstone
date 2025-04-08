@@ -161,11 +161,12 @@ def start_packet_scan(request):
         try:
             data = json.loads(request.body)
             dest_ip = data.get('dest_ip', '')
-            sensitivity = data.get('sensitivity', -0.25)
+            sensitivity = data.get('sensitivity')
             if check(dest_ip):
                 # print(f"Packet Scan Started for IP: {dest_ip}")
                 #! CHANGE VALUE ATTRIBUTE FOR RISK SCANNER OVER HERE
-                detector.riskThresholds = sensitivity 
+                detector.riskThresholds = float(sensitivity)
+                print(f"\n\n\n{sensitivity}\n\n\n")
                 
                 PacketSniffer_procRunner.StartProcess(dest_ip)
                 
@@ -186,9 +187,10 @@ def start_simulated_packet_scan(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            sensitivity = data.get('sensitivity', -0.25)
+            sensitivity = data.get('sensitivity')
             #! CHANGE VALUE ATTRIBUTE FOR RISK SCANNER OVER HERE
-            detector.riskThresholds = sensitivity 
+            detector.riskThresholds = float(sensitivity)
+            print(f"\n\n\n{sensitivity}\n\n\n")
 
             MalPacket_procRunner.StartProcess()
             

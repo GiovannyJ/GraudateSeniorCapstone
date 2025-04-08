@@ -49,12 +49,12 @@ class ProcessRunner:
                 self.process.send_signal(signal.SIGTERM)
             
             self.process.wait(timeout=5)
-            print("[+] Process Stopped Successfully")
+            print(f"[+] Process {self.process_name} Stopped Successfully")
         except subprocess.TimeoutExpired:
             self.process.kill()
-            print("[!] Process Forcefully Terminated")
+            print(f"[!] Process {self.process_name} Forcefully Terminated")
         except Exception as e:
-            print(f"[!] Error Stopping Process {e}")
+            print(f"[!] Error Stopping Process {self.process_name} {e}")
 
 if __name__ == "__main__":
     # Debugging info
