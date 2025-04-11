@@ -1,11 +1,12 @@
 # Importing necessary libraries
+from matplotlib import pyplot as plt
 import pandas as pd
 import json
 import numpy as np
 from ipaddress import ip_address
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import ConfusionMatrixDisplay, classification_report, confusion_matrix
 from scipy.stats import entropy
 from pathlib import Path
 import os
@@ -252,7 +253,14 @@ if __name__ == '__main__':
     print("True labels distribution:\n", true_results.value_counts())
     print("Predicted labels distribution:\n", predictions.value_counts())
     print(classification_report(true_results, predictions))
-    print(confusion_matrix(true_results, predictions)) # lots of false negatives
+    cm = confusion_matrix(true_results, predictions)
+    print(cm) # lots of false negatives
     print(test_results['Risk Label'].value_counts())
+    
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+    disp.plot(cmap='Blues', values_format='d')  # 'd' = integer formatting
+
+    plt.title("Confusion Matrix")
+    plt.show()
 
     
